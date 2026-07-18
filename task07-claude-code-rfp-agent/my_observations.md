@@ -20,6 +20,23 @@ technical_fit                   1%
 competitive                     1%
 
 ## Agent Teams
+Total cost:            $1.98
+Total duration (API):  9m 59s
+Total duration (wall): 2h 7m 18s
+Total code changes:    512 lines added, 0 lines removed
+Usage by model:                          
+claude-haiku-4-5:  616 input, 2.8k output, 62.3k cache read, 12.8k cache write ($0.0370)
+claude-opus-4-8:  1.0k input, 2.1k output, 242.7k cache read, 18.8k cache write ($0.3670)
+claude-sonnet-5:  70 input, 49.6k output, 784.2k cache read, 159.0k cache write ($1.58)
+
+Subagents               % of usage
+deal-desk-orchestrator         34%
+risk_assessment                 9%
+docx                            5%
+pricing                         3%
+legal                           2%
+technical_fit                   1%
+competitive                     1%
 
 
 ## Dynamic Workflow
