@@ -101,6 +101,52 @@ duration       : 12 minutes 35 seconds
 per-model usage:
 - claude-haiku-4-5-20251001 ($0.0176)
 - claude-sonnet-5 ($2.6083)
+# Usage for arch+wbs (workflow / agent teams)
+
+Implements `plans/ARCHITECTURE_WBS_EXTENSION.md`: inserts an architecture debate (competing-hypotheses:
+3 `arch_advocate` candidates + `arch_commercial` skeptic + Opus judge) and a dependency-gated WBS
+(4 `wbs_*` owners, infra -> data -> app -> test) between Specialists and Proposal, on top of the
+core 4-specialist flow. SDK swarm and single-prompt runner are untouched.
+
+New files: 6 agents (`arch-advocate.md`, `arch-commercial.md`, `wbs-infra.md`, `wbs-app.md`,
+`wbs-data.md`, `wbs-test.md`), 2 skills (`architecture-debate`, `wbs-playbook`), and
+`.claude/workflows/process-rfp-dynamic.js` (baseline, authored fresh — none existed in-repo despite
+the Dynamic Workflow row below; that run was ad-hoc via the Workflow tool and never saved as a
+script) + `.claude/workflows/process-rfp-arch-wbs.js.bak` (the extension, copies the baseline and
+inserts the Architecture + WBS phases).
+
+**Not yet run** — the two runs below are expensive, real-API executions the plan expects to be
+captured in a follow-up session (Verification step 6), not authored alongside the config. Fill in
+after running each in a separate session:
+
+## Dynamic Workflow — Architecture + WBS
+Total cost:            TODO
+Total duration (API):  TODO
+Total duration (wall): TODO
+Usage by model:        TODO (expect Opus 4.8 to appear only once — the judge call)
+
+Regression check (must hold): legal still flags the 6 known BLOCKERs; risk decision still lands on
+Escalate to VP (~8% net / ~18% gross); delivery risk card is additive and does not flip it.
+Debate produced exactly 3 candidates + 1 named winner + loser rationales. `arch-diagram-*.png`
+exists, uses real Azure icons, embeds in both the proposal `.docx` and the debate `.html`. Proposal
+`.docx` leak check: no internal risk scores, margin figures, "blocker", or loser rationale.
+
+## Agent Teams — Architecture + WBS
+Total cost:            TODO
+Total duration (API):  TODO
+Total duration (wall): TODO
+Usage by model:        TODO
+
+WBS dependency gating: confirm in the shared task list that a testing/cutover task could not be
+claimed until its build (app + data) dependencies completed.
+
+## Expected comparison
+Both runners should land the same decision as every prior run (Escalate to VP) — delivery risk is
+additive, it doesn't change the legal-driven blockers. Expect `_arch_wbs` to read pricier than the
+plain Dynamic Workflow / Agent Teams baselines above: one Opus judge call plus two extra phases
+(3 advocates x2 rounds, 1 skeptic, 4 WBS owners) buy an implementation plan + architecture diagram
+the baseline runs never produced, not a different risk decision.
+
 # Commentary
 
 The observations below were constructed using the prompt from [commentary_prompt.md](commentary_prompt.md) then asking Claude to add an executive summary.
