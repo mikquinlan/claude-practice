@@ -93,3 +93,11 @@ Result:
 Quality vs other two modes (Risk Assessment report focus):
 - Same honest decision (Escalate to VP) and scoring as prior runs — framework is deterministic.
 - Dynamic run adds: front-loaded qualification, 3 gap specialists covering the required §7 deliverables the single-agent/team runs skipped, and an explicit adversarial QA gate before the customer doc ships.
+
+## Swarm
+total_cost_usd : $2.6259
+num_turns      : 2
+duration       : 15.5s
+per-model usage:
+- claude-haiku-4-5-20251001 ($0.0176)
+- claude-sonnet-5 ($2.6083)

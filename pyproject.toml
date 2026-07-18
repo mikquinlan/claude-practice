@@ -6,7 +6,9 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "anthropic>=0.111.0",
+    "claude-agent-sdk>=0.2.110",
     "matplotlib>=3.11.0",
+    "python-docx>=1.2.0",
     "python-dotenv>=1.2.2",
     "tabulate>=0.10.0",
 ]
