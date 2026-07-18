@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Internal Risk Assessment — Acme Corp</title>
+<style>
+  :root{
+    --bg:#0f172a; --card:#1e293b; --border:#334155; --text:#e2e8f0;
+    --green:#22c55e; --amber:#f59e0b; --red:#ef4444; --blocker:#7f1d1d; --accent:#3b82f6;
+    --violet:#8b5cf6;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--text); padding:24px 32px 64px;
+  }
+  a{color:var(--accent);}
+  header{
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    gap:16px; border-bottom:1px solid var(--border); padding-bottom:20px; margin-bottom:24px;
+  }
+  header h1{margin:0 0 4px; font-size:22px;}
+  header p{margin:0; color:#94a3b8; font-size:13px;}
+  .badges{display:flex; gap:12px; align-items:center; flex-wrap:wrap;}
+  .risk-badge{
+    padding:8px 18px; border-radius:999px; font-weight:700; font-size:14px;
+    border:2px solid transparent; letter-spacing:.03em;
+  }
+  .badge-green{background:rgba(34,197,94,.15); color:var(--green); border-color:var(--green);}
+  .badge-amber{background:rgba(245,158,11,.15); color:var(--amber); border-color:var(--amber);}
+  .badge-red{background:rgba(239,68,68,.15); color:var(--red); border-color:var(--red);}
+
+  .decision-banner{
+    text-align:center; padding:18px; border-radius:12px; font-size:20px; font-weight:800;
+    letter-spacing:.04em; margin-bottom:12px; border:2px solid; transition:all .3s ease;
+  }
+  .decision-banner small{display:block; font-size:12px; font-weight:500; letter-spacing:.01em; margin-top:6px; opacity:.85;}
+
+  .decision-lock-note{
+    text-align:center; font-size:11.5px; color:#64748b; margin-bottom:28px; line-height:1.5;
+  }
+
+  .top-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:28px;
+  }
+  @media (max-width:860px){ .top-grid{grid-template-columns:1fr;} }
+
+  .panel{
+    background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px;
+  }
+  .panel h2{margin:0 0 12px; font-size:14px; text-transform:uppercase; letter-spacing:.08em; color:#94a3b8;}
+
+  .gauge-wrap{display:flex; flex-direction:column; align-items:center;}
+  #gaugeValue{font-size:34px; font-weight:800; margin-top:-58px; transition:color .3s ease;}
+  #gaugeValue span{font-size:15px; font-weight:500; color:#94a3b8; display:block;}
+  .gauge-scale{display:flex; justify-content:space-between; width:220px; font-size:11px; color:#64748b; margin-top:4px;}
+
+  .rev-bar-outer{
+    height:26px; background:#0b1220; border:1px solid var(--border); border-radius:999px;
+    overflow:hidden; position:relative;
+  }
+  .rev-bar-fill{
+    height:100%; border-radius:999px 0 0 999px;
+    background:linear-gradient(90deg,#ef4444 0%, #f59e0b 45%, #22c55e 100%);
+    transition:width .4s ease;
+  }
+  .rev-bar-label{display:flex; justify-content:space-between; margin-top:8px; font-size:13px; color:#94a3b8;}
+  .rev-score{font-size:28px; font-weight:800; color:var(--text);}
+  .rev-signals{list-style:none; margin:14px 0 0; padding:0; font-size:12px; color:#94a3b8; display:grid; grid-template-columns:1fr 1fr; gap:6px 14px;}
+  .rev-signals li{display:flex; justify-content:space-between; border-bottom:1px dashed var(--border); padding-bottom:4px;}
+  .rev-signals b{color:var(--green);}
+
+  .controls{display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;}
+  .controls button{
+    background:var(--accent); color:#fff; border:none; padding:10px 18px; border-radius:8px;
+    font-size:13px; font-weight:600; cursor:pointer; transition:opacity .15s;
+  }
+  .controls button.secondary{background:transparent; border:1px solid var(--border); color:var(--text);}
+  .controls button:hover{opacity:.85;}
+
+  .section-title{font-size:15px; text-transform:uppercase; letter-spacing:.06em; color:#94a3b8; margin:32px 0 14px; border-bottom:1px solid var(--border); padding-bottom:8px;}
+  .section-title.delivery{color:#c4b5fd; border-bottom-color:#4c1d95;}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(320px,1fr)); gap:16px;}
+
+  .clause-card{
+    background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px;
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .clause-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+  .clause-name{font-weight:700; font-size:14.5px; line-height:1.3;}
+  .clause-meta{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .risk-chip{font-weight:700; font-size:13px; color:var(--amber); white-space:nowrap;}
+  .sev-badge{
+    font-size:10.5px; font-weight:800; padding:3px 9px; border-radius:6px; letter-spacing:.05em; color:#fff;
+  }
+  .sev-BLOCKER{background:var(--blocker); border:1px solid #b91c1c;}
+  .sev-HIGH{background:#c2410c;}
+  .sev-MEDIUM{background:#a16207; color:#1c1300;}
+  .sev-LOW{background:#475569;}
+
+  .toggle-row{display:flex; align-items:center; gap:8px; font-size:12.5px; color:#94a3b8;}
+  .toggle-row label{display:flex; align-items:center; gap:8px; cursor:pointer;}
+  .toggle-row input[type=checkbox]{width:16px; height:16px; accent-color:var(--red); cursor:pointer;}
+
+  .state-toggle{display:flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; font-size:12px;}
+  .state-toggle button{
+    flex:1; background:#0b1220; color:#94a3b8; border:none; padding:7px 4px; cursor:pointer;
+    font-weight:600; border-right:1px solid var(--border); transition:background .15s, color .15s;
+  }
+  .state-toggle button:last-child{border-right:none;}
+  .state-toggle button.active-accepted{background:var(--red); color:#fff;}
+  .state-toggle button.active-countered{background:var(--amber); color:#1c1300;}
+  .state-toggle button.active-rejected{background:var(--green); color:#052e12;}
+
+  .clause-contrib{font-size:12px; color:#94a3b8;}
+  .clause-contrib b{color:var(--text);}
+
+  details{border-top:1px dashed var(--border); padding-top:8px;}
+  details summary{cursor:pointer; font-size:12.5px; color:var(--accent); font-weight:600; outline:none;}
+  details .counter-text{font-size:12.5px; color:#cbd5e1; margin-top:8px; line-height:1.5;}
+  details .consequence{margin-top:8px; font-size:12px; color:#fca5a5; background:rgba(127,29,29,.25); border:1px solid #7f1d1d; border-radius:6px; padding:8px 10px;}
+
+  table.summary{width:100%; border-collapse:collapse; margin-top:12px; font-size:13px;}
+  table.summary th, table.summary td{border:1px solid var(--border); padding:10px 12px; text-align:left; vertical-align:top;}
+  table.summary th{background:#0b1220; color:#94a3b8; font-size:12px; text-transform:uppercase; letter-spacing:.04em;}
+  table.summary td ul{margin:0; padding-left:18px;}
+  table.summary td.total{font-weight:800; font-size:15px;}
+  .col-carried{color:#fca5a5;}
+  .col-saved{color:#86efac;}
+
+  /* Delivery risk (additive, non-scoring) section */
+  .delivery-banner{
+    background:rgba(139,92,246,.10); border:1px solid #4c1d95; border-radius:12px;
+    padding:14px 18px; margin-bottom:18px; font-size:13px; color:#ddd6fe; line-height:1.6;
+  }
+  .delivery-banner b{color:#c4b5fd;}
+  .delivery-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:16px;}
+  .delivery-card{
+    background:var(--card); border:1px solid #4c1d95; border-radius:12px; padding:16px;
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .delivery-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+  .delivery-name{font-weight:700; font-size:14.5px;}
+  .delivery-tag{
+    font-size:10.5px; font-weight:800; padding:3px 9px; border-radius:6px; letter-spacing:.05em;
+    color:#fff; background:var(--violet); white-space:nowrap;
+  }
+  .delivery-text{font-size:12.5px; color:#cbd5e1; line-height:1.55;}
+  .delivery-thread{
+    margin-top:16px; background:#150a30; border:1px dashed #6d28d9; border-radius:12px; padding:16px 18px;
+    font-size:12.5px; color:#e9d5ff; line-height:1.7;
+  }
+  .delivery-thread b{color:#c4b5fd;}
+  .chain{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:10px; font-size:12px;}
+  .chain span{background:#2e1065; border:1px solid #6d28d9; border-radius:999px; padding:5px 12px; color:#f3e8ff; white-space:nowrap;}
+  .chain .arrow{color:#8b5cf6; font-weight:700;}
+
+  footer{margin-top:40px; border-top:1px solid var(--border); padding-top:16px; font-size:12px; color:#64748b; text-align:center;}
+  footer .warn{color:var(--amber); font-weight:700; letter-spacing:.02em; margin-bottom:4px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Internal Risk Assessment — Acme Corp Enterprise Data Platform</h1>
+    <p>RFP issued 2026-05-12 &bull; Response due 2026-05-26 &bull; Award expected 2026-06-30 &bull; Assessment generated 2026-07-19</p>
+  </div>
+  <div class="badges">
+    <span id="riskBadge" class="risk-badge badge-amber">NET RISK 8.0%</span>
+  </div>
+</header>
+
+<div id="decisionBanner" class="decision-banner">ESCALATE TO VP
+  <small id="decisionSub">Net risk in the 5–10% band with a high-value opportunity (revenue score 100) — blockers must be resolved before signature.</small>
+</div>
+<div class="decision-lock-note">This decision is governed solely by the commercial/legal Net Risk Score and Revenue Score below, per the risk-assessment skill's decision thresholds. The Delivery / Execution Risk section further down (drawn from the WBS workstream owners) is additive context only — it never changes this Proceed / Escalate to VP / No-bid decision.</div>
+
+<div class="top-grid">
+  <div class="panel">
+    <h2>Risk Gauge (0–15% scale)</h2>
+    <div class="gauge-wrap">
+      <svg width="240" height="140" viewBox="0 0 200 120">
+        <path d="" id="arcGreen" fill="none" stroke="#22c55e" stroke-width="14" stroke-linecap="butt"/>
+        <path d="" id="arcAmber" fill="none" stroke="#f59e0b" stroke-width="14" stroke-linecap="butt"/>
+        <path d="" id="arcRed" fill="none" stroke="#ef4444" stroke-width="14" stroke-linecap="butt"/>
+        <circle cx="100" cy="100" r="5" fill="#e2e8f0"/>
+        <g id="needleGroup" style="transform-origin:100px 100px; transition:transform .4s ease;">
+          <line x1="100" y1="100" x2="100" y2="32" stroke="#e2e8f0" stroke-width="3" stroke-linecap="round"/>
+        </g>
+      </svg>
+      <div id="gaugeValue">8.0%<span>Net Risk Score</span></div>
+      <div class="gauge-scale"><span>0%</span><span>5%</span><span>10%</span><span>15%</span></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Revenue Attractiveness</h2>
+    <div class="rev-score" id="revScoreText">100 / 100</div>
+    <div class="rev-bar-outer"><div class="rev-bar-fill" id="revBarFill" style="width:100%"></div></div>
+    <div class="rev-bar-label"><span>Low opportunity</span><span>High opportunity</span></div>
+    <ul class="rev-signals">
+      <li><span>Enterprise tier, 3+ yr term (3+2 structure)</span><b>+30</b></li>
+      <li><span>Deal value &gt; $500K/yr (realistic ACV &gt;$1M)</span><b>+20</b></li>
+      <li><span>Reference customer potential</span><b>+15</b></li>
+      <li><span>Target vertical (industrial IoT/manufacturing)</span><b>+15</b></li>
+      <li><span>Deep Azure / Microsoft alignment</span><b>+10</b></li>
+      <li><span>Competitive displacement (Databricks/Snowflake/Fabric)</span><b>+10</b></li>
+    </ul>
+  </div>
+</div>
+
+<div class="controls">
+  <button onclick="setWorstCase()">Show worst-case (all accepted)</button>
+  <button class="secondary" onclick="setProposedPosition()">Show proposed position (Step 2 defaults)</button>
+</div>
+
+<div class="section-title">Risk Register — Clause Toggle Cards</div>
+<div class="grid" id="cardGrid"></div>
+
+<div class="section-title">Summary</div>
+<div class="panel">
+  <table class="summary">
+    <thead><tr><th style="width:50%">Clauses accepted (risk carried)</th><th style="width:50%">Clauses negotiated / rejected (risk saved)</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="col-carried"><ul id="acceptedList"></ul></td>
+        <td class="col-saved"><ul id="savedList"></ul></td>
+      </tr>
+      <tr>
+        <td class="total col-carried">Total carried: <span id="acceptedTotal">0.0%</span></td>
+        <td class="total col-saved">Total saved: <span id="savedTotal">0.0%</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section-title delivery">Delivery / Execution Risk — Additive, WBS-Derived (Does Not Affect Decision)</div>
+<div class="delivery-banner">
+  <b>How to read this section:</b> These four flags come straight from the closing line of each WBS workstream's decomposition (Infrastructure, Data/Integration, Application Build, Testing/Cutover) for the Candidate 2 architecture (EU-Primary Zone-Redundant Lakehouse, West Europe active / East US 2 warm DR). They describe <b>schedule and execution</b> exposure, not commercial/legal exposure, and carry <b>no percentage weight</b> in the Net Risk Score or Revenue Score above. They do not move the Proceed / Escalate to VP / No-bid decision, which remains governed purely by the clause-based calculation. Use this section to brief the VP on delivery confidence alongside the commercial escalation.
+</div>
+<div class="delivery-grid">
+  <div class="delivery-card">
+    <div class="delivery-top">
+      <div class="delivery-name">Infrastructure / Landing Zone</div>
+      <div class="delivery-tag">UNQUANTIFIED DR</div>
+    </div>
+    <div class="delivery-text">The warm US East 2 DR standby has no quantified RTO/RPO and no tested promotion runbook — the single named unresolved item carried forward from the architecture debate. Until INFRA-08/INFRA-11 close it, Legal/Commercial cannot credibly respond to RFP §4.3's 99.99%-with-uncapped-termination clause, or defend against Acme reading "multi-region deployment" as active-active rather than DR — either reading could force a mid-build rearchitecture of the entire networking and DR sub-tree under a fixed 5-year price.</div>
+  </div>
+  <div class="delivery-card">
+    <div class="delivery-top">
+      <div class="delivery-name">Data / Integration</div>
+      <div class="delivery-tag">UNENUMERATED SCOPE</div>
+    </div>
+    <div class="delivery-text">The RFP names "30+ internal sources" with no enumeration, protocols, or per-source complexity — true migration/integration scope (DATA-02, DATA-03) can only be firmed up after DATA-01 discovery completes, which lands <em>after</em> contract signature. Combined with the hard Teradata 2027 decommission deadline and the fixed 5-year, no-escalator pricing (RFP §3.1), any legacy source turning out non-standard (undocumented BTEQ scripts, plant-level MES exports, etc.) becomes unbudgeted schedule and margin risk with no re-pricing lever available to absorb it.</div>
+  </div>
+  <div class="delivery-card">
+    <div class="delivery-top">
+      <div class="delivery-name">Application Build</div>
+      <div class="delivery-tag">NON-NEGOTIABLE AT RISK</div>
+    </div>
+    <div class="delivery-text">Native Power BI reporting (APP-04) is the RFP's single named non-negotiable capability, but sub-second performance at 280TB was explicitly flagged as unresolved in the architecture debate, and this deliverable depends on two upstream contracts not yet firm — the US read-cache feed (DATA-07) and residency-tag-driven RLS (DATA-05). If the DirectQuery/import-aggregation hybrid can't hit interactive performance at scale, Application Build owns a contractual non-negotiable miss with no fallback architecture priced into the fixed 5-year term.</div>
+  </div>
+  <div class="delivery-card">
+    <div class="delivery-top">
+      <div class="delivery-name">Testing / Cutover</div>
+      <div class="delivery-tag">GO/NO-GO EXPOSURE</div>
+    </div>
+    <div class="delivery-text">This workstream is where the architecture's unresolved 99.99%-SLA gap and unquantified warm-DR RTO/RPO stop being a paper risk and become a test result. TEST-08 either measures real recovery numbers that fall short of RFP §4.3's zero-tolerance "any SLA failure of any duration = termination + refund" clause, or can't get a clean pass/fail because APP-10 and DATA-06 delivered monitoring/replication against SLA/RPO targets never firmly quantified upstream — meaning the go/no-go decision at cutover (TEST-12) may be the first point in the program where BTS discovers whether the contracted SLA is actually underwritable, with no calendar slack left before the Teradata 2027 deadline.</div>
+  </div>
+</div>
+
+<div class="delivery-thread">
+  <b>Common thread (SLA / DR chain):</b> Infra's unquantified warm-DR RTO/RPO flows straight through App Build's un-derisked Power BI performance gap into Testing/Cutover's go/no-go test — none of these three workstreams can independently resolve whether the contracted 99.99% SLA is underwritable, and the answer only becomes known at TEST-12, with no calendar slack left. This is the delivery-side counterpart to the commercial SLA-termination blocker already priced into the Net Risk Score above (RFP §4.3) — a late or degraded link anywhere in this chain raises the odds of triggering that clause on day one, even though that likelihood is not itself quantified in the score.
+  <div class="chain">
+    <span>Infra: warm-DR RTO/RPO unquantified (INFRA-08/11)</span><span class="arrow">→</span>
+    <span>App Build: Power BI @ 280TB unresolved (APP-04)</span><span class="arrow">→</span>
+    <span>Testing/Cutover: SLA go/no-go (TEST-08 / TEST-12)</span>
+  </div>
+  <b>Separate thread (legacy scope):</b> Data/Integration's flag is independent — "30+ sources" is unenumerated until post-signature discovery (DATA-01), so any non-standard legacy source becomes unbudgeted risk under the same fixed 5-year, no-escalator pricing, with no re-pricing lever available.
+</div>
+
+<footer>
+  <div class="warn">This is an internal risk assessment. Do not share with the customer.</div>
+  <div>Gross commercial/legal exposure (all 12 clauses accepted as-is): 18.0% &bull; Delivery risk flags are additive/informational only and carry no scoring weight &bull; BTS-Synthetic Deal Desk &bull; Generated 2026-07-19</div>
+</footer>
+
+<script>
+// ---- Step 1 + Step 2 data: risk register with pre-populated proposal positions ----
+const clauses = [
+  {
+    id:'discount35', name:'35% Off-List Discount Demand', severity:'HIGH', base:1.5,
+    rfp:'RFP requires no less than 35% off published list pricing (§3.3).',
+    counter:'Pricing holds the floor at 28–30% (strategic band, requires VP Sales sign-off), opening near 22–23% off per the "difficult counterparty" rule. Acme\'s 35% floor demand exceeds our ceiling; we hold using the 3-year TCO argument that won Globex (18%) and held Initech (15% vs. their 25% ask), and the multi-year (3+2yr) commitment plus a reference-customer agreement, precedent Stark Industries (28% off, $1.1M/5yr).',
+    state:'countered'
+  },
+  {
+    id:'pricefreeze', name:'5-Year Price Freeze, No Escalators', severity:'HIGH', base:1.5,
+    rfp:'RFP requires the full 5-year pricing horizon fixed at signature with zero escalators (§3.1).',
+    counter:'We accept the 3+2 year structure and hold fixed pricing for years 1–3, but do not commit to a full 5-year freeze: we offer the 2-year discount adder (+3%) with renewal years (4–5) repriced at contract signature, since our 3-year-term rule requires a CPI+2% escalator (capped 5%) for any deeper multi-year discount.',
+    state:'countered'
+  },
+  {
+    id:'net90', name:'Net 90 Payment Terms', severity:'MEDIUM', base:0.5,
+    rfp:'RFP requires annual fees billed in advance, due Net 90 (§3.2).',
+    counter:'Net 90 is refused outright (playbook floor: never beyond Net 60). We counter Net 60, annual upfront — the same position that held for Initech.',
+    state:'countered'
+  },
+  {
+    id:'mfn', name:'Most-Favoured-Nation Pricing Warranty', severity:'BLOCKER', base:2.0,
+    rfp:'RFP requires a warranty that pricing offered to Acme is no less favourable than pricing offered to any comparable customer for the contract duration (§3.4).',
+    counter:'We refuse this clause outright, with no alternative language offered — per the pricing playbook, MFN is never conceded and is pushed back on hard as a walk-away item.',
+    consequence:'If accepted, any future discount granted to any other customer would retroactively apply to Acme\'s pricing for the life of the contract, systematically eroding realized margin across our entire customer book, not just this deal.',
+    state:'rejected'
+  },
+  {
+    id:'liability', name:'Uncapped Breach Liability', severity:'BLOCKER', base:3.0,
+    rfp:'RFP demands uncapped vendor liability for any data breach (§4.1).',
+    counter:'We cap aggregate liability at 24 months of fees paid, with carve-outs for gross negligence and IP infringement.',
+    consequence:'Uncapped breach liability exceeds our cyber insurance ceiling of 24 months\' fees, leaving any claim above that limit as unfunded, self-insured exposure — and voids the policy outright as drafted.',
+    state:'countered'
+  },
+  {
+    id:'indemnity', name:'Uncapped Indemnification for Regulatory Fines & Reputational Damage', severity:'BLOCKER', base:2.5,
+    rfp:'RFP requires full indemnification for notification costs, regulatory fines, and reputational damages arising from a breach (§4.1).',
+    counter:'Notification costs and regulatory fines are brought under the same 24-month liability cap rather than left open-ended; reputational-damages indemnification is refused.',
+    consequence:'Open-ended indemnification for regulatory fines and reputational damages is uninsurable and unquantifiable, putting an unbounded liability directly on the balance sheet with no ceiling.',
+    state:'countered'
+  },
+  {
+    id:'ip', name:'Full IP Assignment to Customer', severity:'BLOCKER', base:1.5,
+    rfp:'RFP requires all work product, configurations, and integrations to vest in Acme upon creation (§4.4).',
+    counter:'Acme owns its data; custom work product created during the engagement is licensed to Acme for internal use, while BTS-Synthetic retains ownership of the underlying platform IP — the same license-back model that closed Stark Industries.',
+    consequence:'Full IP assignment would strip us of reusable platform IP built during delivery, undermining the product-reuse economics our margins depend on across the whole customer base, not just Acme.',
+    state:'countered'
+  },
+  {
+    id:'subproc', name:'Customer Veto Over Every Subprocessor', severity:'HIGH', base:1.5,
+    rfp:'RFP requires Acme\'s prior written consent before engaging any subprocessor for any part of the services, withholdable at Acme\'s sole discretion (§4.5).',
+    counter:'We publish a current subprocessor list with 30 days\' advance notice of any addition, giving Acme an objection right that leads to substitution or a termination remedy — not a blanket pre-approval veto that could stall delivery.',
+    state:'countered'
+  },
+  {
+    id:'audit', name:'Unannounced Audits, 4x/Year, Vendor-Funded', severity:'HIGH', base:1.0,
+    rfp:'RFP grants Acme audit rights without prior notice, up to 4 times a year, with all costs borne by the vendor (§4.2).',
+    counter:'We counter with one audit per year, 30 days\' notice, under confidentiality; any additional audits (capped at 2 total per year) are funded by Acme, not absorbed by us.',
+    state:'countered'
+  },
+  {
+    id:'slaterm', name:'Immediate Termination on Any SLA Miss', severity:'BLOCKER', base:2.0,
+    rfp:'RFP states any SLA failure, of any duration, entitles Acme to terminate immediately with a full monthly refund (§4.3).',
+    counter:'We counter with service credits up to 30% of monthly fees as the sole remedy for SLA misses, with no termination right absent repeated/chronic failures — removing the single-miss termination trigger entirely.',
+    consequence:'A single brief SLA miss triggering instant termination plus a full refund would turn a routine operational blip into total revenue loss on the account — a Day-1 contractual landmine, especially paired with the 99.99% uptime ask.',
+    state:'countered'
+  },
+  {
+    id:'sla9999', name:'99.99% Uptime Demand (Above Our 99.95% Enterprise Cap)', severity:'MEDIUM', base:0.5,
+    rfp:'RFP requires a committed 99.99% monthly uptime SLA (§4.3).',
+    counter:'Our standard Enterprise tier commits to 99.95%. Technical fit confirms 99.99% is only reachable via a bespoke multi-region active-active add-on (~$80K–120K/year), quoted and accepted separately rather than folded into the base SLA commitment.',
+    state:'countered'
+  },
+  {
+    id:'termnotice', name:'30-Day Termination for Convenience', severity:'MEDIUM', base:0.5,
+    rfp:'RFP allows Acme to terminate at any time, with or without cause, on 30 days\' written notice, with no early-termination fees (§3.5).',
+    counter:'We push notice to 90 days for an orderly transition; the no-early-termination-fee term itself already matches our standard position and is accepted as-is.',
+    state:'countered'
+  }
+];
+
+const defaultStates = {};
+clauses.forEach(c => defaultStates[c.id] = c.state);
+
+const REVENUE_SCORE = 100; // fixed deal-characteristic signals, not toggle-dependent (see panel breakdown)
+const GAUGE_MAX = 15; // 0-15% arc per spec
+
+function contribution(c){
+  if(c.state === 'accepted') return c.base;
+  if(c.state === 'countered') return c.base * 0.5;
+  return 0;
+}
+
+// ---- Gauge geometry (semicircle, 0deg=top, -90=left/0%, +90=right/15%) ----
+function polarToCartesian(cx, cy, r, angleDeg){
+  const rad = (angleDeg - 90) * Math.PI / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+function describeArc(cx, cy, r, startAngle, endAngle){
+  const start = polarToCartesian(cx, cy, r, endAngle);
+  const end = polarToCartesian(cx, cy, r, startAngle);
+  const largeArcFlag = (endAngle - startAngle) <= 180 ? "0" : "1";
+  return ["M", start.x, start.y, "A", r, r, 0, largeArcFlag, 0, end.x, end.y].join(" ");
+}
+function angleForValue(v){
+  const clamped = Math.min(v, GAUGE_MAX);
+  return -90 + (clamped / GAUGE_MAX) * 180;
+}
+
+function initGauge(){
+  document.getElementById('arcGreen').setAttribute('d', describeArc(100,100,80,-90, -90 + (5/GAUGE_MAX)*180));
+  document.getElementById('arcAmber').setAttribute('d', describeArc(100,100,80, -90 + (5/GAUGE_MAX)*180, -90 + (10/GAUGE_MAX)*180));
+  document.getElementById('arcRed').setAttribute('d', describeArc(100,100,80, -90 + (10/GAUGE_MAX)*180, 90));
+}
+
+function render(){
+  let net = 0;
+  clauses.forEach(c => net += contribution(c));
+  net = Math.round(net * 100) / 100;
+
+  // Gauge needle + value
+  const angle = angleForValue(net);
+  document.getElementById('needleGroup').style.transform = 'rotate(' + angle + 'deg)';
+  const gaugeValueEl = document.getElementById('gaugeValue');
+  gaugeValueEl.innerHTML = net.toFixed(1) + '%<span>Net Risk Score</span>';
+
+  // Badge + banner
+  const badge = document.getElementById('riskBadge');
+  const banner = document.getElementById('decisionBanner');
+  badge.textContent = 'NET RISK ' + net.toFixed(1) + '%';
+
+  let bandClass, decisionText, decisionColor, subText;
+  if(net <= 5){
+    bandClass = 'badge-green'; decisionColor = 'var(--green)';
+    decisionText = 'PROCEED — Standard Redlines';
+    subText = 'Net risk at or below the 5% deal-ready threshold. Proceed with the standard redline positions shown below.';
+  } else if(net <= 10){
+    bandClass = 'badge-amber'; decisionColor = 'var(--amber)';
+    if(REVENUE_SCORE >= 70){
+      decisionText = 'ESCALATE TO VP';
+      subText = 'Net risk in the 5–10% band with a high-value opportunity (revenue score ' + REVENUE_SCORE + ') — blockers must be resolved before signature.';
+    } else {
+      decisionText = 'NO-BID OR MAJOR REDLINE';
+      subText = 'Net risk in the 5–10% band but revenue score (' + REVENUE_SCORE + ') is below the 70-point threshold to justify VP escalation.';
+    }
+  } else {
+    bandClass = 'badge-red'; decisionColor = 'var(--red)';
+    decisionText = 'NO-BID';
+    subText = 'Net risk exceeds the 10% ceiling. Do not proceed without a fundamental renegotiation of blocker clauses.';
+  }
+  badge.className = 'risk-badge ' + bandClass;
+  banner.style.borderColor = decisionColor;
+  banner.style.color = decisionColor;
+  banner.style.background = 'rgba(0,0,0,.15)';
+  banner.innerHTML = decisionText + '<small id="decisionSub">' + subText + '</small>';
+
+  // Summary table
+  const acceptedList = document.getElementById('acceptedList');
+  const savedList = document.getElementById('savedList');
+  acceptedList.innerHTML = '';
+  savedList.innerHTML = '';
+  let acceptedTotal = 0, savedTotal = 0;
+
+  clauses.forEach(c => {
+    if(c.state === 'accepted'){
+      acceptedTotal += c.base;
+      const li = document.createElement('li');
+      li.textContent = c.name + ' (+' + c.base.toFixed(1) + '%)';
+      acceptedList.appendChild(li);
+    } else {
+      const saved = c.state === 'rejected' ? c.base : c.base * 0.5;
+      savedTotal += saved;
+      const li = document.createElement('li');
+      li.textContent = c.name + ' (' + (c.state === 'rejected' ? 'rejected, ' : 'countered, ') + '−' + saved.toFixed(2).replace(/0$/,'').replace(/\.$/,'') + '%)';
+      savedList.appendChild(li);
+    }
+  });
+  if(acceptedList.children.length === 0){
+    acceptedList.innerHTML = '<li style="color:#64748b;">None currently accepted as-is</li>';
+  }
+  document.getElementById('acceptedTotal').textContent = acceptedTotal.toFixed(1) + '%';
+  document.getElementById('savedTotal').textContent = savedTotal.toFixed(1) + '%';
+
+  // Card visual state
+  clauses.forEach(c => {
+    const card = document.getElementById('card-' + c.id);
+    if(!card) return;
+    card.querySelectorAll('.state-toggle button').forEach(btn => {
+      btn.classList.remove('active-accepted','active-countered','active-rejected');
+      if(btn.dataset.state === c.state) btn.classList.add('active-' + c.state);
+    });
+    const checkbox = card.querySelector('.toggle-row input');
+    if(checkbox) checkbox.checked = (c.state === 'accepted');
+    card.querySelector('.clause-contrib').innerHTML =
+      'Contribution: <b>' + contribution(c).toFixed(2).replace(/0$/,'').replace(/\.$/,'') + '%</b> of base +' + c.base.toFixed(1) + '%';
+  });
+}
+
+function buildCards(){
+  const grid = document.getElementById('cardGrid');
+  grid.innerHTML = '';
+  clauses.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'clause-card';
+    card.id = 'card-' + c.id;
+    card.innerHTML = `
+      <div class="clause-top">
+        <div class="clause-name">${c.name}</div>
+        <div class="risk-chip">+${c.base.toFixed(1)}%</div>
+      </div>
+      <div class="clause-meta">
+        <span class="sev-badge sev-${c.severity}">${c.severity}</span>
+      </div>
+      <div class="toggle-row">
+        <label><input type="checkbox" onchange="setState('${c.id}', this.checked ? 'accepted' : 'rejected')"> Accepted in proposal?</label>
+      </div>
+      <div class="state-toggle">
+        <button data-state="accepted" onclick="setState('${c.id}','accepted')">Accepted</button>
+        <button data-state="countered" onclick="setState('${c.id}','countered')">Countered</button>
+        <button data-state="rejected" onclick="setState('${c.id}','rejected')">Rejected</button>
+      </div>
+      <div class="clause-contrib"></div>
+      <details>
+        <summary>Our counter-position (click to expand)</summary>
+        <div class="counter-text"><strong>RFP ask:</strong> ${c.rfp}<br><br><strong>Our position:</strong> ${c.counter}</div>
+        ${c.consequence ? '<div class="consequence"><strong>If accepted as-is:</strong> ' + c.consequence + '</div>' : ''}
+      </details>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function setState(id, state){
+  const c = clauses.find(x => x.id === id);
+  if(c) c.state = state;
+  render();
+}
+function setWorstCase(){
+  clauses.forEach(c => c.state = 'accepted');
+  render();
+}
+function setProposedPosition(){
+  clauses.forEach(c => c.state = defaultStates[c.id]);
+  render();
+}
+
+initGauge();
+buildCards();
+render();
+</script>
+</body>
+</html>

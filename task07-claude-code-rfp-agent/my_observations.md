@@ -101,51 +101,6 @@ duration       : 12 minutes 35 seconds
 per-model usage:
 - claude-haiku-4-5-20251001 ($0.0176)
 - claude-sonnet-5 ($2.6083)
-# Usage for arch+wbs (workflow / agent teams)
-
-Implements `plans/ARCHITECTURE_WBS_EXTENSION.md`: inserts an architecture debate (competing-hypotheses:
-3 `arch_advocate` candidates + `arch_commercial` skeptic + Opus judge) and a dependency-gated WBS
-(4 `wbs_*` owners, infra -> data -> app -> test) between Specialists and Proposal, on top of the
-core 4-specialist flow. SDK swarm and single-prompt runner are untouched.
-
-New files: 6 agents (`arch-advocate.md`, `arch-commercial.md`, `wbs-infra.md`, `wbs-app.md`,
-`wbs-data.md`, `wbs-test.md`), 2 skills (`architecture-debate`, `wbs-playbook`), and
-`.claude/workflows/process-rfp-dynamic.js` (baseline, authored fresh — none existed in-repo despite
-the Dynamic Workflow row below; that run was ad-hoc via the Workflow tool and never saved as a
-script) + `.claude/workflows/process-rfp-arch-wbs.js.bak` (the extension, copies the baseline and
-inserts the Architecture + WBS phases).
-
-**Not yet run** — the two runs below are expensive, real-API executions the plan expects to be
-captured in a follow-up session (Verification step 6), not authored alongside the config. Fill in
-after running each in a separate session:
-
-## Dynamic Workflow — Architecture + WBS
-Total cost:            TODO
-Total duration (API):  TODO
-Total duration (wall): TODO
-Usage by model:        TODO (expect Opus 4.8 to appear only once — the judge call)
-
-Regression check (must hold): legal still flags the 6 known BLOCKERs; risk decision still lands on
-Escalate to VP (~8% net / ~18% gross); delivery risk card is additive and does not flip it.
-Debate produced exactly 3 candidates + 1 named winner + loser rationales. `arch-diagram-*.png`
-exists, uses real Azure icons, embeds in both the proposal `.docx` and the debate `.html`. Proposal
-`.docx` leak check: no internal risk scores, margin figures, "blocker", or loser rationale.
-
-## Agent Teams — Architecture + WBS
-Total cost:            TODO
-Total duration (API):  TODO
-Total duration (wall): TODO
-Usage by model:        TODO
-
-WBS dependency gating: confirm in the shared task list that a testing/cutover task could not be
-claimed until its build (app + data) dependencies completed.
-
-## Expected comparison
-Both runners should land the same decision as every prior run (Escalate to VP) — delivery risk is
-additive, it doesn't change the legal-driven blockers. Expect `_arch_wbs` to read pricier than the
-plain Dynamic Workflow / Agent Teams baselines above: one Opus judge call plus two extra phases
-(3 advocates x2 rounds, 1 skeptic, 4 WBS owners) buy an implementation plan + architecture diagram
-the baseline runs never produced, not a different risk decision.
 
 # Commentary
 
@@ -238,3 +193,99 @@ Swarm is the most analyst-rich build: it is the only one that surfaces an **open
 **Recommendation:** run the flow as **Agent Teams for routine triage** (cheapest, cleanest redlines, same decision) and reserve **Dynamic Workflow for strategic deals** where the gap-specialist coverage and QA gate justify the ~3× cost. Whichever runner ships, the deal owner still owns the four things none of them decided: the true MFN/indemnity posture (counter vs. reject), whether to carry or price the 99.99% SLA, the actual discount number, and the unscored throughput-POC risk.
 
 **Regression check.** All four runs pass the intended band: gross 18.0% exact, net 6.75–9.00% (≈8%), revenue 100/100, decision **Escalate to VP** in every run — none deviates. One taxonomy caveat, consistent across all four: the current files flag **five BLOCKER-severity clauses** (uncapped breach liability, uncapped regulatory-fine indemnity, full IP assignment, immediate-SLA-termination, MFN), not six — the subprocessor veto and no-notice audits are classified **HIGH**, not BLOCKER. All six of the named exposures are still surfaced and countered/rejected in every run; none is dropped. The count differs from the "6 BLOCKERs" expectation only because the register splits liability into two blockers and demotes the two audit/subprocessor clauses to HIGH.
+
+
+# Extension: Architecture + Work Breakdown Structure (WBS)
+
+## Usage for arch+wbs (workflow / agent teams)
+
+Implements `plans/ARCHITECTURE_WBS_EXTENSION.md`: inserts an architecture debate (competing-hypotheses:
+3 `arch_advocate` candidates + `arch_commercial` skeptic + Opus judge) and a dependency-gated WBS
+(4 `wbs_*` owners, infra -> data -> app -> test) between Specialists and Proposal, on top of the
+core 4-specialist flow. SDK swarm and single-prompt runner are untouched.
+
+New files: 6 agents (`arch-advocate.md`, `arch-commercial.md`, `wbs-infra.md`, `wbs-app.md`,
+`wbs-data.md`, `wbs-test.md`), 2 skills (`architecture-debate`, `wbs-playbook`), and
+`.claude/workflows/process-rfp-dynamic.js` (baseline, authored fresh — none existed in-repo despite
+the Dynamic Workflow row below; that run was ad-hoc via the Workflow tool and never saved as a
+script) + `.claude/workflows/process-rfp-arch-wbs.js.bak` (the extension, copies the baseline and
+inserts the Architecture + WBS phases).
+
+## Dynamic Workflow — Architecture + WBS
+Total cost:            $12.09
+Total duration (API):  47m 55s
+Total duration (wall): 56m 46s
+Total code changes:    2014 lines added, 17 lines removed
+Usage by model:                          
+claude-opus-4-8:  1.2k input, 127.7k output, 4.1m cache read, 503.0k cache write ($8.48)
+claude-sonnet-5:  118 input, 120.4k output, 1.4m cache read, 355.6k cache write ($3.57)
+claude-haiku-4-5:  42 input, 2.5k output, 39.2k cache read, 12.2k cache write ($0.0316)
+
+Regression check (must hold): legal still flags the 6 known BLOCKERs; risk decision still lands on
+Escalate to VP (~8% net / ~18% gross); delivery risk card is additive and does not flip it.
+Debate produced exactly 3 candidates + 1 named winner + loser rationales. `arch-diagram-*.png`
+exists, uses real Azure icons, embeds in both the proposal `.docx` and the debate `.html`. Proposal
+`.docx` leak check: no internal risk scores, margin figures, "blocker", or loser rationale.
+
+## Agent Teams — Architecture + WBS
+Total cost:            $8.27
+Total duration (API):  31m 45s
+Total duration (wall): 58m 32s
+Total code changes:    1553 lines added, 8 lines removed
+Usage by model:                          
+claude-opus-4-8:  1.1k input, 87.1k output, 2.0m cache read, 391.7k cache write ($5.72)
+claude-haiku-4-5:  50 input, 2.5k output, 50.5k cache read, 12.6k cache write ($0.0335)
+claude-sonnet-5:  88 input, 79.1k output, 800.2k cache read, 291.4k cache write ($2.52)
+
+
+
+## Comparison: Dynamic Workflow vs Agent Teams
+
+Both runs produced the same six artifacts and reached the same conclusions. Dynamic Workflow cost
+$12.09 against Agent Teams' $8.27 — a 46% premium that bought no change in outcome.
+
+**Where they agree (the substance).** Both debates ran three candidates, eliminated the same two, and
+selected the same winner — Candidate 2, EU-primary zone-redundant lakehouse with warm US East DR —
+at an identical weighted score of 5.8/10 and for identical reasons (best TCO, dragged by the
+structural 99.95%-vs-99.99% SLA gap in §4.3). Loser scores differ trivially (1.6/3.6 vs 2.0/4.2);
+the ranking is the same. Both risk dashboards report 18.0% gross exposure, revenue 100/100, and
+**Escalate to VP**, with net risk at 8.0% (Dynamic) and 8.8% (Agent Teams) — the same 5–10% band.
+Both correctly treat delivery risk as additive and state explicitly that it does not move the
+decision. The four-workstream implementation plan is materially the same in both proposals.
+
+Three differences are worth noting.
+
+**1. Delivery risk is framed through different lenses.** Dynamic Workflow traces a single failure
+chain — unquantified warm-DR RTO/RPO, through unproven Power BI performance at 280TB, into the
+cutover go/no-go — and cites specific WBS task IDs throughout, so each flag is traceable to the work
+that closes it. Agent Teams frames the same plan as a fully serial critical path with zero float,
+leading on external vendor lead times (ExpressRoute circuits, Event Hubs Dedicated capacity) and
+unbenchmarked legacy extract throughput across Acme's distributed sites. Both are credible; Dynamic
+Workflow's is more auditable, Agent Teams' is more schedule-realistic.
+
+**2. Commercial specificity.** Dynamic Workflow commits to a named number — up to 30% off list, the
+strategic-tier ceiling — and declines MFN outright, offering an itemised TCO case in its place.
+Agent Teams declines to state a discount at all ("an aggressive discount... the final number is
+subject to..."), and counters MFN with a benchmarking and price-review right. Agent Teams is also
+markedly more transparent on the SLA gap: it flags the 99.95% shortfall in the architecture,
+commercial and risk sections and offers to price a bespoke active-active option, where Dynamic
+Workflow mentions only "a path to a higher-availability tier as an add-on". Agent Teams' proposal is
+the more honest document; Dynamic Workflow's is the more decisive one.
+
+**3. Architecture diagram.** Dynamic Workflow produced a compact landscape diagram organised as a
+left-to-right flow with an explicit "open items carried to the WBS" panel. Agent Teams produced a
+much larger portrait diagram naming specific Azure services per tier. That detail introduces a
+problem: the Agent Teams diagram places **Azure Databricks** inside our own platform as the
+lakehouse compute layer — Databricks is a named competing bidder under RFP §6, and the same proposal
+argues against them two pages earlier. This is customer-visible and would need fixing before the
+document went out.
+
+**Shared defect.** Both runs embed their diagram into the customer `.docx`, and both diagrams carry
+internal-only annotations — margin and TCO weightings, "structurally CANNOT reach 99.99%", "active-
+active fallback is an unpriced mid-contract cost". The prose leak checks passed; the image bypassed
+them. Diagram text needs to be part of the leak gate.
+
+**Assessment.** Agent Teams delivers the same decision, the same architecture and a more transparent
+proposal for two-thirds of the cost. Dynamic Workflow's premium buys tighter traceability between
+risk flags and WBS tasks, and a cleaner diagram — worth it for a deal where the delivery plan will
+be scrutinised, not for routine triage.

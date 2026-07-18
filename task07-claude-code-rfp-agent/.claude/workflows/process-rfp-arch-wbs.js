@@ -3,7 +3,7 @@ export const meta = {
   description: 'Process an inbound RFP with an architecture debate + WBS: specialists -> architecture debate -> WBS -> customer proposal -> internal risk assessment',
   phases: [
     { title: 'Specialists', detail: '4 core specialists in parallel: pricing, legal, technical_fit, competitive' },
-    { title: 'Architecture', detail: 'derive 3 Azure candidates, position papers, one refutation round, commercial scoring, judge (Opus), diagram, internal debate HTML', model: 'claude-opus-4-8 (judge call only)' },
+    { title: 'Architecture', detail: 'derive 3 Azure candidates, position papers, one refutation round, commercial scoring, judge (Opus), drawio diagram with real Azure icons, internal debate HTML', model: 'claude-opus-4-8 (judge call only)' },
     { title: 'WBS', detail: '4 owners decompose in dependency order: infra -> data -> app -> test' },
     { title: 'Proposal', detail: 'synthesize with winner + WBS, verify produced, completeness/leak critic, docx conversion' },
     { title: 'Risk', detail: 'internal risk assessment HTML dashboard, with an additive WBS delivery-risk card' },
@@ -72,6 +72,7 @@ log('4 specialists returned: pricing, legal, technical_fit, competitive')
 phase('Architecture')
 
 const debateHtml = `outputs/architecture-debate-${customer}-${date}_arch_wbs.html`
+const diagramDrawio = `outputs/arch-diagram-${customer}-${date}_arch_wbs.drawio`
 const diagramPng = `outputs/arch-diagram-${customer}-${date}_arch_wbs.png`
 
 const candidatesText = await agent(
@@ -124,16 +125,39 @@ const judgment = await agent(
 
 log('Judge returned a winner — generating the Azure diagram and the internal debate HTML')
 
-await agent(
-  `Generate an Azure architecture diagram for the WINNING candidate only, using the drawio skill: use ` +
-    `scripts/shapesearch.py "azure <service>" for each component's exact icon style, then export with ` +
-    `drawio -x -f png --width 2000 -o ${diagramPng} <in>.drawio. Winner description below.\n\n${judgment}`,
-  { agentType: 'general-purpose', label: 'diagram', phase: 'Architecture' }
-)
+async function drawDiagram(note) {
+  const fixNote = note ? `\n\nThe previous attempt failed — fix this and retry:\n${note}` : ''
+  return agent(
+    `Draw the Azure solution architecture for the WINNING candidate ONLY (below). Do not draw the losers and do ` +
+      `not re-derive an architecture — the topology is already decided.\n\n` +
+      `WINNING ARCHITECTURE (from the debate judge):\n${judgment}\n\n` +
+      `Draw it with the drawio skill (invoke the \`drawio:drawio-skill\` skill; it wraps the draw.io desktop CLI), ` +
+      `following the architecture-debate skill's Step 5. Requirements — follow exactly:\n` +
+      `- For EVERY Azure component, get the exact official style string first: ` +
+      `\`python3 <drawio-skill>/scripts/shapesearch.py "azure <service>"\` (e.g. "azure synapse", "azure data ` +
+      `lake", "azure data factory", "azure event hub", "azure key vault"). Use the returned ` +
+      `\`image=img/lib/azure2/...\` style verbatim. Do NOT guess or hand-write style strings, and do NOT use ` +
+      `generic boxes where a real Azure icon exists.\n` +
+      `- Group the resources inside an Azure cloud / subscription / resource-group container using the official ` +
+      `Azure grouping shape (shapesearch "azure subscription" / "azure resource group" / "azure cloud").\n` +
+      `- Hand-author the .drawio XML (see the skill's references/xml-authoring.md) and save it to ${diagramDrawio}.\n` +
+      `- Export the PNG: \`drawio -x -f png --width 2000 -o ${diagramPng} ${diagramDrawio}\` (no -e, stays under ` +
+      `the vision size limit). Then read the PNG back and self-check the icons render as real Azure shapes, not ` +
+      `grey rectangles.\n\n` +
+      `Produce exactly two files: ${diagramDrawio} and ${diagramPng}.` +
+      fixNote,
+    { agentType: 'general-purpose', label: 'diagram', phase: 'Architecture' }
+  )
+}
+
+await drawDiagram()
+
+const diagramDrawioExists = await verifyProduced(diagramDrawio, () =>
+  drawDiagram('the .drawio XML was not saved'), 0, 'Architecture')
+if (!diagramDrawioExists) throw new Error(`Architecture .drawio was never produced at ${diagramDrawio} after retry`)
 
 const diagramExists = await verifyProduced(diagramPng, () =>
-  agent(`Generate the Azure diagram PNG at ${diagramPng} for the winning architecture below — it's missing.\n\n${judgment}`,
-    { agentType: 'general-purpose', label: 'diagram-retry', phase: 'Architecture' }), 0, 'Architecture')
+  drawDiagram('the .drawio exists but the PNG export failed'), 0, 'Architecture')
 if (!diagramExists) throw new Error(`Architecture diagram was never produced at ${diagramPng} after retry`)
 
 await agent(
@@ -271,5 +295,5 @@ return {
   pricing, legal, tech, competitive,
   candidatesText, positions, refutations, scoring, judgment,
   infra, data, app, test,
-  proposalMd, proposalDocx, debateHtml, diagramPng, riskHtml,
+  proposalMd, proposalDocx, debateHtml, diagramDrawio, diagramPng, riskHtml,
 }
