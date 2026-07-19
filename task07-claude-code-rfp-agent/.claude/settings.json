@@ -1,5 +1,81 @@
 {
   "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"    
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(pnpm build:*)",
+      "WebSearch",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "mcp__context7__query-docs",
+      "mcp__plugin_context7_context7__resolve-library-id",
+      "mcp__plugin_context7_context7__query-docs",
+      "Bash(find:*)",
+      "Bash(git rm *)",
+      "Bash(drawio *)"
+    ],
+    "deny": [
+      "Bash(rm:*)",
+      "Bash(/bin/rm:*)",
+      "Bash(rmdir:*)",
+      "Bash(/bin/rmdir:*)",
+      "Bash(mv:*)",
+      "Bash(chmod:*)",
+      "Bash(chown:*)",
+      "Bash(mkfs:*)",
+      "Bash(dd:*)",
+      "Bash(git push --force:*)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Bash(nc:*)",
+      "Bash(ncat:*)",
+      "Bash(wget:*)",
+      "Bash(sudo:*)",
+      "Bash(su:*)",
+      "Bash(wget *)",
+      "Bash(curl*)",
+      "Bash(curl *)",
+      "Bash(wget*)"
+    ],
+    "ask": [
+      "Bash(kill:*)",
+      "Bash(terraform destroy:*)",
+      "Bash(terraform apply:*)",
+      "Bash(pkill:*)",
+      "Bash(killall:*)",
+      "Bash(launchctl:*)",
+      "Bash(crontab:*)",
+      "Bash(npm publish:*)",
+      "Bash(pnpm publish:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean:*)",
+      "Bash(git branch -D:*)"
+    ]
+  },
+  "sandbox": {
+    "enabled": false,
+    "autoAllowBashIfSandboxed": true,
+    "allowUnsandboxedCommands": false,
+    "network": {
+      "allowedDomains": []
+    },
+    "filesystem": {
+      "allowWrite": [],
+      "denyRead": [
+        "~/.ssh",
+        "~/.aws",
+        "~/.config/gh",
+        "~/.config/gcloud",
+        "~/.gnupg",
+        "~/.netrc",
+        "~/.npmrc",
+        "~/.terraform.d",
+        "~/.kube",
+        "~/.docker"
+      ]
+    }
   }
 }
+

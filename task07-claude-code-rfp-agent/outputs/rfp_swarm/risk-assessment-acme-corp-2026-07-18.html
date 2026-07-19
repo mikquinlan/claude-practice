@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Internal Risk Assessment — Acme Corp — 2026-07-18</title>
+<style>
+  :root{
+    --bg:#0f172a;
+    --card:#1e293b;
+    --border:#334155;
+    --text:#e2e8f0;
+    --green:#22c55e;
+    --amber:#f59e0b;
+    --red:#ef4444;
+    --blocker:#7f1d1d;
+    --accent:#3b82f6;
+  }
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    margin:0;
+    padding:0;
+  }
+  .container{max-width:1240px;margin:0 auto;padding:28px 24px 60px;}
+  .deal-title{font-size:26px;font-weight:800;margin:0 0 2px;}
+  .deal-sub{color:#94a3b8;font-size:14px;margin:0 0 18px;}
+  .header-top{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:flex-start;}
+  .badge-overall{padding:8px 20px;border-radius:999px;font-weight:800;font-size:15px;display:inline-block;}
+  .badge-green{background:rgba(34,197,94,.15);color:var(--green);border:1px solid var(--green);}
+  .badge-amber{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid var(--amber);}
+  .badge-red{background:rgba(239,68,68,.15);color:var(--red);border:1px solid var(--red);}
+
+  .decision-banner{
+    padding:18px 24px;border-radius:10px;font-size:22px;font-weight:800;
+    text-align:center;margin:20px 0;letter-spacing:.02em;
+  }
+  .decision-proceed{background:rgba(34,197,94,.18);color:var(--green);border:2px solid var(--green);}
+  .decision-escalate{background:rgba(245,158,11,.18);color:var(--amber);border:2px solid var(--amber);}
+  .decision-nobid{background:rgba(239,68,68,.18);color:var(--red);border:2px solid var(--red);}
+
+  .metrics-row{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0;}
+  .metric-chip{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:13px;color:#94a3b8;}
+  .metric-chip strong{display:block;font-size:18px;color:var(--text);margin-top:2px;}
+
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin:20px 0;}
+  .panel h2{margin:0 0 12px;font-size:16px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;}
+
+  .gauge-flex{display:flex;flex-wrap:wrap;gap:32px;align-items:center;justify-content:center;}
+  .gauge-value{font-size:38px;font-weight:800;text-align:center;}
+  .gauge-caption{text-align:center;color:#94a3b8;font-size:13px;margin-top:4px;}
+
+  .revenue-bar-bg{background:#0f172a;border:1px solid var(--border);border-radius:999px;height:30px;overflow:hidden;position:relative;margin-top:8px;}
+  .revenue-bar-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#22c55e);transition:width .4s ease;border-radius:999px 0 0 999px;}
+  .revenue-label{position:absolute;right:12px;top:4px;font-size:13px;font-weight:700;color:#0f172a;}
+
+  .controls{display:flex;gap:12px;flex-wrap:wrap;margin:4px 0 8px;}
+  button.action-btn{background:var(--accent);color:white;border:none;padding:10px 18px;border-radius:6px;cursor:pointer;font-weight:700;font-size:13px;}
+  button.action-btn.secondary{background:#334155;color:var(--text);}
+  button.action-btn:hover{filter:brightness(1.12);}
+
+  .legend{font-size:12px;color:#94a3b8;margin:8px 0 0;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;margin-right:16px;}
+  .dot{width:10px;height:10px;border-radius:3px;display:inline-block;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin:20px 0;}
+  .card{background:#0f172a;border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-direction:column;}
+  .card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;}
+  .card h3{margin:0;font-size:15px;line-height:1.35;}
+  .section-tag{font-size:10px;text-transform:uppercase;color:#64748b;letter-spacing:.06em;font-weight:700;}
+  .sev-badge{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap;flex-shrink:0;}
+  .sev-BLOCKER{background:var(--blocker);color:#fecaca;}
+  .sev-HIGH{background:#ea580c;color:#1e293b;}
+  .sev-MEDIUM{background:var(--amber);color:#1e293b;}
+  .sev-LOW{background:#64748b;color:#e2e8f0;}
+  .risk-line{font-size:13px;margin:6px 0 2px;color:#94a3b8;}
+  .risk-line strong{color:var(--text);font-size:17px;}
+  .rfp-ref{font-size:11px;color:#64748b;margin-bottom:4px;}
+
+  .segmented{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin:10px 0 10px;}
+  .seg-btn{flex:1;background:#1e293b;color:#94a3b8;border:none;padding:8px 4px;font-size:11.5px;cursor:pointer;font-weight:700;border-right:1px solid var(--border);}
+  .seg-btn:last-child{border-right:none;}
+  .seg-btn.active-accepted{background:var(--red);color:white;}
+  .seg-btn.active-countered{background:var(--amber);color:#1e293b;}
+  .seg-btn.active-rejected{background:var(--green);color:#1e293b;}
+
+  .expand-btn{background:none;border:1px dashed var(--border);color:var(--accent);padding:7px 10px;border-radius:6px;cursor:pointer;font-size:12.5px;text-align:left;font-weight:600;}
+  .counter-text{margin-top:8px;font-size:12.5px;line-height:1.55;color:#cbd5e1;background:var(--card);padding:10px;border-radius:6px;border:1px solid var(--border);}
+
+  table.summary{width:100%;border-collapse:collapse;margin:16px 0 0;font-size:14px;}
+  table.summary th,table.summary td{border:1px solid var(--border);padding:12px;text-align:left;}
+  table.summary th{background:#0f172a;color:#94a3b8;font-size:12px;text-transform:uppercase;letter-spacing:.04em;}
+  table.summary td.value{font-size:20px;font-weight:800;}
+
+  footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--border);color:#64748b;font-size:12px;text-align:center;line-height:1.6;}
+  footer .warn{color:var(--red);font-weight:700;}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header-top">
+    <div>
+      <p class="deal-title">Internal Risk Assessment — Acme Corp Enterprise Data Platform</p>
+      <p class="deal-sub">Deal Desk review • Report generated 2026-07-18 • RFP response due 2026-05-26 • Award expected 2026-06-30</p>
+    </div>
+    <div id="overallBadge" class="badge-overall badge-amber">NET RISK: 9.0%</div>
+  </div>
+
+  <div id="decisionBanner" class="decision-banner decision-escalate">ESCALATE TO VP</div>
+
+  <div class="metrics-row">
+    <div class="metric-chip">Gross risk (worst case, all clauses accepted)<strong id="grossChip">18.0%</strong></div>
+    <div class="metric-chip">Net risk (current proposed position)<strong id="netChip">9.0%</strong></div>
+    <div class="metric-chip">Deal-ready threshold<strong>≤ 5.0%</strong></div>
+    <div class="metric-chip">Revenue opportunity score<strong id="revChip">100 / 100</strong></div>
+    <div class="metric-chip">Open BLOCKER clauses (still &gt;0% risk)<strong id="blockerChip">5</strong></div>
+  </div>
+
+  <div class="panel">
+    <h2>Risk Gauge</h2>
+    <div class="gauge-flex">
+      <svg width="320" height="180" viewBox="0 0 300 170">
+        <path d="M30,150 A120,120 0 0 1 90,46.1" fill="none" stroke="#22c55e" stroke-width="18" stroke-linecap="round"/>
+        <path d="M90,46.1 A120,120 0 0 1 210,46.1" fill="none" stroke="#f59e0b" stroke-width="18" stroke-linecap="round"/>
+        <path d="M210,46.1 A120,120 0 0 1 270,150" fill="none" stroke="#ef4444" stroke-width="18" stroke-linecap="round"/>
+        <text x="20" y="168" fill="#94a3b8" font-size="11">0%</text>
+        <text x="140" y="20" fill="#94a3b8" font-size="11">7.5%</text>
+        <text x="258" y="168" fill="#94a3b8" font-size="11">15%</text>
+        <g id="needleGroup" style="transform-origin:150px 150px; transform:rotate(0deg); transition:transform .4s ease;">
+          <line x1="150" y1="150" x2="30" y2="150" stroke="#e2e8f0" stroke-width="4" stroke-linecap="round"/>
+        </g>
+        <circle cx="150" cy="150" r="7" fill="#e2e8f0"/>
+      </svg>
+      <div>
+        <div id="gaugeValue" class="gauge-value">9.0%</div>
+        <div class="gauge-caption">Net risk score (0–15% arc; gross risk of 18.0% is off-scale — clamped at 15%)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Revenue Attractiveness</h2>
+    <div class="revenue-bar-bg">
+      <div id="revenueBarFill" class="revenue-bar-fill" style="width:100%;"></div>
+      <div class="revenue-label" id="revenueLabel">100 / 100</div>
+    </div>
+    <div class="legend" style="margin-top:8px;">
+      Enterprise tier 3+2yr term (+30) · Est. deal value &gt;$500K/yr at this scale (+20) · Named reference potential (+15) ·
+      Target vertical: industrial IoT manufacturing (+15) · Deep Azure/Microsoft alignment (+10) · Competitive displacement vs Databricks/Snowflake (+10)
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Controls</h2>
+    <div class="controls">
+      <button class="action-btn secondary" onclick="showWorstCase()">Show worst-case (all clauses accepted)</button>
+      <button class="action-btn" onclick="showProposedPosition()">Show proposed position (Step 2 defaults)</button>
+    </div>
+    <div class="legend">
+      <span><span class="dot" style="background:#ef4444;"></span>Accepted — full risk counts</span>
+      <span><span class="dot" style="background:#f59e0b;"></span>Countered — our redline proposed, risk halved, not yet agreed</span>
+      <span><span class="dot" style="background:#22c55e;"></span>Rejected/agreed — risk removed</span>
+    </div>
+  </div>
+
+  <h2 style="font-size:18px;margin:24px 0 4px;">Risk Register — Clause Cards</h2>
+  <p style="color:#94a3b8;font-size:13px;margin-top:0;">One card per exposure clause identified in the RFP. Default state reflects the current negotiation position from Pricing and Legal — every clause below is a proposed counter awaiting customer agreement.</p>
+  <div class="grid" id="cardGrid"></div>
+
+  <div class="panel">
+    <h2>Summary</h2>
+    <table class="summary">
+      <tr>
+        <th>Clauses accepted (risk carried)</th>
+        <th>Clauses negotiated/rejected (risk saved)</th>
+      </tr>
+      <tr>
+        <td class="value" id="riskCarried" style="color:#ef4444;">9.00%</td>
+        <td class="value" id="riskSaved" style="color:#22c55e;">9.00%</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h2>Recommendation</h2>
+    <p style="font-size:14px;line-height:1.6;">
+      Gross exposure if the RFP's contract language is accepted exactly as drafted is <strong>18.0%</strong> — well above our 5% deal-ready
+      threshold and would trigger an automatic <strong>No-bid</strong>. With Pricing's and Legal's current counter-positions on the table
+      (all twelve clauses countered, none yet agreed by Acme), net risk falls to <strong>9.0%</strong> — inside the 5–10% band.
+      Revenue opportunity scores <strong>100/100</strong>: 3-year Enterprise term with 2-year renewal, likely &gt;$500K/year at this scale,
+      strong industrial-IoT reference potential, deep Azure alignment, and a head-to-head displacement opportunity against Databricks and
+      Snowflake. Per the decision matrix (5–10% net risk with revenue score ≥ 70), this deal should be <strong>escalated to the VP</strong>
+      rather than proceeding on standard redlines or being no-bid. Five clauses remain BLOCKER-severity as drafted (uncapped breach liability,
+      uncapped indemnification for regulatory fines, full IP assignment, MFN pricing, and immediate termination on any SLA miss) — none of
+      these can go to signature without an agreed counter. VP sign-off should focus on securing customer movement on these five before final
+      submission; the discount ask (35% vs. our 28% counter) is also a live competitive-loss risk given the recent Pied Piper loss to
+      Databricks at a 40% discount.
+    </p>
+  </div>
+
+  <footer>
+    This is an internal risk assessment. Do not share with the customer.<br>
+    <span class="warn">Confidential — Deal Desk use only.</span><br>
+    Generated 2026-07-18
+  </footer>
+</div>
+
+<script>
+  const clauses = [
+    {
+      id:'c1', section:'Commercial', ref:'RFP §3.3',
+      name:'Discount ≥35% off list',
+      base:1.5, severity:'HIGH', defaultState:'countered',
+      text:'The RFP requires at least 35% off list price. Pricing is countering at 28% (our strategic Enterprise tier), which sits below Acme’s stated floor. If Acme will not move off 35%, this is a live competitive-loss risk: on the Pied Piper deal we lost to Databricks after they went to 40% off while we held at 30%. Recommend Sales leadership confirm the maximum we can approach (30–32%) before final submission.'
+    },
+    {
+      id:'c2', section:'Commercial', ref:'RFP §3.1',
+      name:'5-Year Price Freeze (No Escalators)',
+      base:1.5, severity:'HIGH', defaultState:'countered',
+      text:'Instead of a fixed 5-year price with no escalators, we are countering with a 3-year firm price plus a capped CPI+2% (max 5%) increase in the years 4–5 renewal. This protects our margin against inflation while still giving Acme price certainty through the initial term.'
+    },
+    {
+      id:'c3', section:'Commercial', ref:'RFP §3.2',
+      name:'Net 90 Payment Terms',
+      base:0.5, severity:'MEDIUM', defaultState:'countered',
+      text:'Acme is asking for Net 90 on advance annual billing. We are countering with Net 30, with Net 60 as a fallback concession. Net 90 on a seven-figure invoice ties up working capital for an extra two months versus our standard terms.'
+    },
+    {
+      id:'c4', section:'Commercial', ref:'RFP §3.4',
+      name:'Most-Favoured-Nation Pricing Clause',
+      base:2.0, severity:'BLOCKER', defaultState:'countered',
+      text:'Acme wants an unrestricted contractual MFN warranty for the full contract duration. We are countering with a narrower "comparable segment" benchmarking clause rather than a binding, auditable price-parity guarantee. If accepted as drafted, any future discount we give another customer in a similar segment would legally obligate us to retroactively lower Acme’s pricing for the life of the contract, creating unpredictable margin erosion across our book of business.'
+    },
+    {
+      id:'c5', section:'Legal', ref:'RFP §4.1',
+      name:'Uncapped Data Breach Liability',
+      base:3.0, severity:'BLOCKER', defaultState:'countered',
+      text:'Acme wants uncapped vendor liability for any data breach. We are countering with a liability cap at 24 months of fees, carve-outs only for gross negligence and IP infringement. If accepted as drafted, a single breach could expose us to unlimited damages — this would void our cyber insurance policy’s coverage ceiling and could exceed the entire value of the contract many times over.'
+    },
+    {
+      id:'c6', section:'Legal', ref:'RFP §4.1',
+      name:'Uncapped Indemnity for Regulatory Fines',
+      base:2.5, severity:'BLOCKER', defaultState:'countered',
+      text:'Acme wants full indemnification for notification costs, regulatory fines, and reputational damages. We are countering to exclude regulatory fines and reputational damages from indemnity, retaining coverage for notification costs only. If accepted as drafted, we would effectively be underwriting Acme’s own regulatory compliance failures (e.g., GDPR fines of up to 4% of Acme’s global revenue) — tens of millions of dollars we cannot control or price for.'
+    },
+    {
+      id:'c7', section:'Legal', ref:'RFP §4.4',
+      name:'Full IP Assignment to Customer',
+      base:1.5, severity:'BLOCKER', defaultState:'countered',
+      text:'Acme wants all work product — custom development, configurations, integrations — to vest in Acme on creation. We are countering with a license-only model: Acme-specific deliverables are licensed exclusively to Acme, while our underlying platform and service IP stays with us. If accepted as drafted, we would permanently lose ownership of reusable IP built during this engagement, undermining our ability to reuse or resell that work with any other customer.'
+    },
+    {
+      id:'c8', section:'Legal', ref:'RFP §3.5',
+      name:'30-Day Termination for Convenience',
+      base:0.5, severity:'MEDIUM', defaultState:'countered',
+      text:'Acme wants the right to terminate for convenience on 30 days’ notice with no early termination fee. We are countering to push notice to 90 days while keeping the no-ETF concession. Thirty days is too short for us to responsibly wind down dedicated infrastructure and staff commitments.'
+    },
+    {
+      id:'c9', section:'Legal', ref:'RFP §4.3',
+      name:'Immediate Termination on Any SLA Miss',
+      base:2.0, severity:'BLOCKER', defaultState:'countered',
+      text:'Acme wants any SLA miss, of any duration, to trigger immediate termination plus a full refund of that month’s fees. We are countering with service credits (up to 30% of monthly fees) as the sole remedy, with termination available only after a repeated or material uncured breach. If accepted as drafted, a single minor, non-material outage of only a few minutes could let Acme terminate a multi-year, multi-million-dollar contract instantly with a full refund — effectively a free-option exit for the customer.'
+    },
+    {
+      id:'c10', section:'Legal', ref:'RFP §4.5',
+      name:'Customer Veto Over All Subprocessors',
+      base:1.5, severity:'HIGH', defaultState:'countered',
+      text:'Acme wants prior written consent, withholdable at its sole discretion, before we engage any subprocessor for any part of the service. We are countering with a public subprocessor list, 30 days’ notice before adding a new one, an objection right, and a substitution-or-termination path limited to the affected service only if unresolved.'
+    },
+    {
+      id:'c11', section:'Legal', ref:'RFP §4.2',
+      name:'No-Notice Audits, Up to 4x/Year, Vendor Pays',
+      base:1.0, severity:'HIGH', defaultState:'countered',
+      text:'Acme wants the right to audit our controls, facilities, and personnel without notice, up to four times a year, at our cost. We are countering with one audit per year (30 days’ notice, under confidentiality), with up to two additional audits per year available at Acme’s own cost.'
+    },
+    {
+      id:'c12', section:'Legal', ref:'RFP §4.3',
+      name:'99.99% SLA Demand (Above Our 99.95% Cap)',
+      base:0.5, severity:'MEDIUM', defaultState:'countered',
+      text:'Acme wants a 99.99% monthly uptime commitment, above our Enterprise ceiling. We are countering with our standard 99.95% commitment, backed by service credits as the remedy mechanism.'
+    }
+  ];
+
+  const state = {}; // id -> 'accepted' | 'countered' | 'rejected'
+  clauses.forEach(c => state[c.id] = c.defaultState);
+
+  const GROSS = clauses.reduce((s,c) => s + c.base, 0);
+  const REVENUE_SCORE = 100;
+
+  function multiplier(st){
+    if(st==='accepted') return 1;
+    if(st==='countered') return 0.5;
+    return 0;
+  }
+
+  function computeNet(){
+    return clauses.reduce((sum,c) => sum + c.base*multiplier(state[c.id]), 0);
+  }
+
+  function severityColor(v){
+    if(v <= 5) return {name:'green', hex:'#22c55e'};
+    if(v <= 10) return {name:'amber', hex:'#f59e0b'};
+    return {name:'red', hex:'#ef4444'};
+  }
+
+  function decisionFor(net, revenue){
+    if(net <= 5) return {label:'PROCEED — standard redlines', cls:'decision-proceed'};
+    if(net <= 10){
+      if(revenue >= 70) return {label:'ESCALATE TO VP', cls:'decision-escalate'};
+      return {label:'NO-BID OR MAJOR REDLINE', cls:'decision-nobid'};
+    }
+    return {label:'NO-BID', cls:'decision-nobid'};
+  }
+
+  function buildCards(){
+    const grid = document.getElementById('cardGrid');
+    grid.innerHTML = '';
+    clauses.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.id = 'card-' + c.id;
+      card.innerHTML = `
+        <div class="card-header">
+          <div>
+            <div class="section-tag">${c.section} risk · ${c.ref}</div>
+            <h3>${c.name}</h3>
+          </div>
+          <span class="sev-badge sev-${c.severity}">${c.severity}</span>
+        </div>
+        <div class="risk-line">Base risk contribution: <strong id="risk-${c.id}">+${c.base.toFixed(1)}%</strong></div>
+        <div class="segmented" id="seg-${c.id}">
+          <button class="seg-btn" data-state="accepted" onclick="setState('${c.id}','accepted')">Accepted</button>
+          <button class="seg-btn" data-state="countered" onclick="setState('${c.id}','countered')">Countered</button>
+          <button class="seg-btn" data-state="rejected" onclick="setState('${c.id}','rejected')">Rejected</button>
+        </div>
+        <button class="expand-btn" onclick="toggleExpand('${c.id}')">Show our counter-position ▾</button>
+        <div class="counter-text" id="text-${c.id}" style="display:none;">${c.text}</div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  function toggleExpand(id){
+    const el = document.getElementById('text-' + id);
+    el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
+  }
+
+  function setState(id, st){
+    state[id] = st;
+    recalc();
+  }
+
+  function updateSegButtons(){
+    clauses.forEach(c => {
+      const seg = document.getElementById('seg-' + c.id);
+      Array.from(seg.children).forEach(btn => {
+        btn.classList.remove('active-accepted','active-countered','active-rejected');
+        if(btn.dataset.state === state[c.id]){
+          btn.classList.add('active-' + state[c.id]);
+        }
+      });
+    });
+  }
+
+  function updateGauge(net){
+    const clamped = Math.min(net, 15);
+    const deg = (clamped/15)*180;
+    document.getElementById('needleGroup').style.transform = `rotate(${deg}deg)`;
+    document.getElementById('gaugeValue').textContent = net.toFixed(1) + '%';
+    const col = severityColor(net);
+    document.getElementById('gaugeValue').style.color = col.hex;
+  }
+
+  function recalc(){
+    const net = computeNet();
+
+    clauses.forEach(c => {
+      document.getElementById('risk-' + c.id).textContent =
+        '+' + (c.base*multiplier(state[c.id])).toFixed(2) + '% (of +' + c.base.toFixed(1) + '% base)';
+    });
+
+    updateSegButtons();
+    updateGauge(net);
+
+    const col = severityColor(net);
+    const badge = document.getElementById('overallBadge');
+    badge.className = 'badge-overall badge-' + col.name;
+    badge.textContent = 'NET RISK: ' + net.toFixed(1) + '%';
+
+    const decision = decisionFor(net, REVENUE_SCORE);
+    const banner = document.getElementById('decisionBanner');
+    banner.className = 'decision-banner ' + decision.cls;
+    banner.textContent = decision.label;
+
+    document.getElementById('netChip').textContent = net.toFixed(1) + '%';
+    document.getElementById('grossChip').textContent = GROSS.toFixed(1) + '%';
+
+    const openBlockers = clauses.filter(c => c.severity==='BLOCKER' && multiplier(state[c.id]) > 0).length;
+    document.getElementById('blockerChip').textContent = openBlockers;
+
+    document.getElementById('riskCarried').textContent = net.toFixed(2) + '%';
+    document.getElementById('riskSaved').textContent = (GROSS - net).toFixed(2) + '%';
+  }
+
+  function showWorstCase(){
+    clauses.forEach(c => state[c.id] = 'accepted');
+    recalc();
+  }
+
+  function showProposedPosition(){
+    clauses.forEach(c => state[c.id] = c.defaultState);
+    recalc();
+  }
+
+  // init
+  buildCards();
+  document.getElementById('revenueBarFill').style.width = REVENUE_SCORE + '%';
+  document.getElementById('revenueLabel').textContent = REVENUE_SCORE + ' / 100';
+  recalc();
+</script>
+</body>
+</html>

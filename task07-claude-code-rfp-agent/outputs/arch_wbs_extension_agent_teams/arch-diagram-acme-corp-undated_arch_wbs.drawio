@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="26.0.0">
+  <diagram name="Acme-Azure-EDP-Winner">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2260" pageHeight="1860" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ===================== TITLE ===================== -->
+        <mxCell id="title" value="Acme Corp — Enterprise Data Platform on Azure (BTS-Synthetic) · WINNING ARCHITECTURE&#xa;EU-primary zone-redundant lakehouse with warm US East DR — West Europe active across AZ1/AZ2/AZ3 · East US 2 warm standby + read-only Austin serving · 280 TB Delta/Iceberg · 80K events/sec peak · 600 Power BI users" style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontStyle=1;fontColor=#0F3A5F;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="40" y="14" width="2100" height="58" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== ACME SOURCES ===================== -->
+        <mxCell id="srcBox" value="Acme Corp — on-premises &amp; edge sources" style="swimlane;startSize=34;fillColor=#F5F5F5;strokeColor=#666666;dashed=1;dashPattern=6 4;fontColor=#444444;fontStyle=1;fontSize=12;verticalAlign=top;align=center;rounded=1;arcSize=3;html=1;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="560" width="210" height="420" as="geometry" />
+        </mxCell>
+        <mxCell id="srcStream" value="Streaming event sources&#xa;80K events/sec peak" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/iot/IoT_Edge.svg;" vertex="1" parent="srcBox">
+          <mxGeometry x="60" y="50" width="61" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="srcTeradata" value="Teradata EDW&#xa;+ 30&#43; batch / SaaS sources&#xa;(cutover in scope)" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#666666;fontColor=#333333;fontSize=10;boundedLbl=1;" vertex="1" parent="srcBox">
+          <mxGeometry x="55" y="230" width="90" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="expressRoute" value="ExpressRoute&#xa;private circuit" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/mscae/Express_Route.svg;" vertex="1" parent="1">
+          <mxGeometry x="270" y="620" width="60" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== LEGEND ===================== -->
+        <mxCell id="legend" value="Legend" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#666666;verticalAlign=top;fontStyle=1;fontSize=11;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1040" width="250" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" value="" style="rounded=1;html=1;fillColor=#EAF3FB;strokeColor=#0078D4;" vertex="1" parent="legend">
+          <mxGeometry x="12" y="30" width="30" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1t" value="Primary active region (West Europe)" style="text;html=1;align=left;verticalAlign=middle;fontSize=10;" vertex="1" parent="legend">
+          <mxGeometry x="50" y="28" width="195" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" value="" style="rounded=1;html=1;fillColor=#FFF4E5;strokeColor=#D79B00;" vertex="1" parent="legend">
+          <mxGeometry x="12" y="60" width="30" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2t" value="Warm DR + read-only serving (East US 2)" style="text;html=1;align=left;verticalAlign=middle;fontSize=10;" vertex="1" parent="legend">
+          <mxGeometry x="50" y="58" width="195" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" value="" style="endArrow=classic;html=1;strokeColor=#0F3A5F;strokeWidth=2;" edge="1" parent="legend">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="12" y="98" as="sourcePoint" />
+            <mxPoint x="42" y="98" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg3t" value="Authoritative data flow (single write path)" style="text;html=1;align=left;verticalAlign=middle;fontSize=10;" vertex="1" parent="legend">
+          <mxGeometry x="50" y="88" width="195" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" value="" style="endArrow=classic;html=1;strokeColor=#D79B00;strokeWidth=2;dashed=1;" edge="1" parent="legend">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="12" y="128" as="sourcePoint" />
+            <mxPoint x="42" y="128" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg4t" value="Async replication / DR promotion" style="text;html=1;align=left;verticalAlign=middle;fontSize=10;" vertex="1" parent="legend">
+          <mxGeometry x="50" y="118" width="195" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== AZURE SUBSCRIPTION ===================== -->
+        <mxCell id="sub" value="Azure Subscription — BTS-Synthetic Enterprise Data Platform (Acme Corp)  ·  Microsoft Entra ID tenant  ·  Enterprise-scale landing zone" style="swimlane;startSize=40;fillColor=none;strokeColor=#0078D4;dashed=1;dashPattern=6 4;fontColor=#0078D4;fontStyle=1;fontSize=13;verticalAlign=top;align=left;spacingLeft=14;rounded=1;arcSize=2;html=1;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="340" y="90" width="1600" height="1550" as="geometry" />
+        </mxCell>
+
+        <!-- Global / subscription-wide services -->
+        <mxCell id="frontDoor" value="Azure Front Door&#xa;+ Traffic Manager&#xa;client &amp; BI entry" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/networking/Front_Doors.svg;" vertex="1" parent="sub">
+          <mxGeometry x="30" y="50" width="61" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="subIcon" value="Single subscription&#xa;single tenant" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/general/Subscriptions.svg;" vertex="1" parent="sub">
+          <mxGeometry x="212" y="50" width="34" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="policy" value="Azure Policy&#xa;data-residency guardrails" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/management_governance/Policy.svg;" vertex="1" parent="sub">
+          <mxGeometry x="373" y="50" width="51" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="monitor" value="Azure Monitor&#xa;SLA telemetry" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/management_governance/Monitor.svg;" vertex="1" parent="sub">
+          <mxGeometry x="545" y="50" width="54" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="logAnalytics" value="Log Analytics&#xa;audit &amp; platform logs" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/management_governance/Log_Analytics_Workspaces.svg;" vertex="1" parent="sub">
+          <mxGeometry x="715" y="50" width="54" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="entra" value="Microsoft Entra ID&#xa;SSO / RBAC — 600 users" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/identity/Users.svg;" vertex="1" parent="sub">
+          <mxGeometry x="884" y="50" width="49" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="automation" value="Automation Accounts&#xa;DR promotion runbooks&#xa;(manual RTO)" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/management_governance/Automation_Accounts.svg;" vertex="1" parent="sub">
+          <mxGeometry x="1193" y="50" width="54" height="54" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== WEST EUROPE (PRIMARY) ===================== -->
+        <mxCell id="we" value="West Europe — PRIMARY, ACTIVE  ·  Resource Group  ·  zone-redundant across Availability Zones 1 / 2 / 3&#xa;ALL EU-classified customer data resident here — exactly one authoritative copy, never replicated out" style="swimlane;startSize=52;fillColor=#EAF3FB;strokeColor=#0078D4;strokeWidth=2;fontColor=#0F3A5F;fontStyle=1;fontSize=12;verticalAlign=top;align=center;rounded=1;arcSize=2;html=1;collapsible=0;" vertex="1" parent="sub">
+          <mxGeometry x="30" y="200" width="1010" height="1220" as="geometry" />
+        </mxCell>
+
+        <!-- WE band: platform &amp; security -->
+        <mxCell id="weS" value="Network &amp; security — private data plane, no public endpoints" style="swimlane;startSize=30;fillColor=none;strokeColor=#8FAFC7;dashed=1;dashPattern=6 4;fontSize=11;fontStyle=2;fontColor=#31577A;align=left;spacingLeft=10;verticalAlign=top;rounded=1;arcSize=3;html=1;collapsible=0;" vertex="1" parent="we">
+          <mxGeometry x="20" y="60" width="970" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="weVnet" value="Virtual Networks&#xa;hub-spoke, 3 zones" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/networking/Virtual_Networks.svg;" vertex="1" parent="weS">
+          <mxGeometry x="40" y="45" width="67" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="wePl" value="Private Link&#xa;private endpoints" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/networking/Private_Link.svg;" vertex="1" parent="weS">
+          <mxGeometry x="250" y="45" width="65" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="weFw" value="Azure Firewall&#xa;egress control" style="image;sketch=0;aspect=fixed;html=1;points=[];align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/mscae/Azure_Firewall.svg;" vertex="1" parent="weS">
+          <mxGeometry x="465" y="45" width="55" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="weKv" value="Key Vaults&#xa;CMK / secrets (EU)" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/security/Key_Vaults.svg;" vertex="1" parent="weS">
+          <mxGeometry x="675" y="45" width="58" height="58" as="geometry" />
+        </mxCell>
+        <mxCell id="weMi" value="Managed Identities&#xa;workload auth" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/identity/Managed_Identities.svg;" vertex="1" parent="weS">
+          <mxGeometry x="885" y="45" width="58" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- WE band: ingest -->
+        <mxCell id="weA" value="Ingest tier — zone-redundant across AZ1 · AZ2 · AZ3 (single authoritative write path)" style="swimlane;startSize=30;fillColor=none;strokeColor=#8FAFC7;dashed=1;dashPattern=6 4;fontSize=11;fontStyle=2;fontColor=#31577A;align=left;spacingLeft=10;verticalAlign=top;rounded=1;arcSize=3;html=1;collapsible=0;" vertex="1" parent="we">
+          <mxGeometry x="20" y="300" width="970" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="weEvh" value="Event Hubs Dedicated&#xa;zone-redundant&#xa;80K events/sec peak" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/analytics/Event_Hubs.svg;" vertex="1" parent="weA">
+          <mxGeometry x="40" y="45" width="67" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="weAks" value="AKS — ingest services&#xa;zone-redundant node pools" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/containers/Kubernetes_Services.svg;" vertex="1" parent="weA">
+          <mxGeometry x="250" y="45" width="68" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="weAsa" value="Stream Analytics&#xa;real-time enrichment" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/analytics/Stream_Analytics_Jobs.svg;" vertex="1" parent="weA">
+          <mxGeometry x="460" y="45" width="68" height="58" as="geometry" />
+        </mxCell>
+        <mxCell id="weAcr" value="Container Registries&#xa;ingest images" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/containers/Container_Registries.svg;" vertex="1" parent="weA">
+          <mxGeometry x="885" y="45" width="68" height="61" as="geometry" />
+        </mxCell>
+
+        <!-- WE band: batch processing -->
+        <mxCell id="weB" value="Batch ETL, orchestration &amp; Teradata cutover" style="swimlane;startSize=30;fillColor=none;strokeColor=#8FAFC7;dashed=1;dashPattern=6 4;fontSize=11;fontStyle=2;fontColor=#31577A;align=left;spacingLeft=10;verticalAlign=top;rounded=1;arcSize=3;html=1;collapsible=0;" vertex="1" parent="we">
+          <mxGeometry x="20" y="540" width="970" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="weDbx" value="Azure Databricks&#xa;lakehouse compute&#xa;Delta / Iceberg ETL" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/analytics/Azure_Databricks.svg;" vertex="1" parent="weB">
+          <mxGeometry x="40" y="45" width="56" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="weAdf" value="Data Factory&#xa;orchestration — 30&#43; batch sources" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/databases/Data_Factory.svg;" vertex="1" parent="weB">
+          <mxGeometry x="250" y="45" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="weDms" value="Database Migration Service&#xa;Teradata cutover" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/databases/Azure_Database_Migration_Services.svg;" vertex="1" parent="weB">
+          <mxGeometry x="460" y="45" width="56" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- WE band: storage core -->
+        <mxCell id="weC" value="Lakehouse storage — ZRS (zone-redundant), the single authoritative copy" style="swimlane;startSize=30;fillColor=none;strokeColor=#0078D4;dashed=1;dashPattern=6 4;fontSize=11;fontStyle=2;fontColor=#0F3A5F;align=left;spacingLeft=10;verticalAlign=top;rounded=1;arcSize=3;html=1;collapsible=0;" vertex="1" parent="we">
+          <mxGeometry x="20" y="780" width="970" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="weAdlsNote" value="ADLS Gen2, zone-redundant storage (ZRS) — the full ~280 TB Delta / Iceberg corpus lives here and only here.&#xa;Every ingest, batch ETL and Teradata cutover path terminates in this one account: exactly one authoritative write path.&#xa;EU-classified customer data is never copied to any other region — residency is provable by absence, not by table-level filters." style="text;html=1;align=left;verticalAlign=middle;fontSize=11;whiteSpace=wrap;fontColor=#0F3A5F;" vertex="1" parent="weC">
+          <mxGeometry x="40" y="45" width="590" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="weAdls" value="ADLS Gen2 (ZRS)&#xa;~280 TB lakehouse" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/storage/Data_Lake_Storage_Gen1.svg;" vertex="1" parent="weC">
+          <mxGeometry x="670" y="45" width="80" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- WE band: metadata / catalog / serving -->
+        <mxCell id="weD" value="Metadata, catalog &amp; serving — zone-redundant" style="swimlane;startSize=30;fillColor=none;strokeColor=#8FAFC7;dashed=1;dashPattern=6 4;fontSize=11;fontStyle=2;fontColor=#31577A;align=left;spacingLeft=10;verticalAlign=top;rounded=1;arcSize=3;html=1;collapsible=0;" vertex="1" parent="we">
+          <mxGeometry x="20" y="1010" width="970" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="weSyn" value="Synapse Analytics&#xa;EU serving SQL&#xa;Power BI DirectQuery" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/analytics/Azure_Synapse_Analytics.svg;" vertex="1" parent="weD">
+          <mxGeometry x="40" y="45" width="52" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="weSql" value="Azure SQL Database&#xa;zone-redundant&#xa;platform metadata" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/databases/SQL_Database.svg;" vertex="1" parent="weD">
+          <mxGeometry x="250" y="45" width="45" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="wePur" value="Microsoft Purview&#xa;catalog, lineage, §4.2 audit evidence" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/databases/Azure_Purview_Accounts.svg;" vertex="1" parent="weD">
+          <mxGeometry x="460" y="45" width="68" height="42" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== EAST US 2 (WARM DR) ===================== -->
+        <mxCell id="us" value="East US 2 — WARM STANDBY DR + READ-ONLY SERVING  ·  Resource Group&#xa;Infrastructure provisioned but scaled down · promoted by runbook on regional failure · NO EU-classified data" style="swimlane;startSize=52;fillColor=#FFF4E5;strokeColor=#D79B00;strokeWidth=2;fontColor=#7A4E00;fontStyle=1;fontSize=12;verticalAlign=top;align=center;rounded=1;arcSize=2;html=1;collapsible=0;" vertex="1" parent="sub">
+          <mxGeometry x="1070" y="200" width="520" height="1220" as="geometry" />
+        </mxCell>
+
+        <mxCell id="usS" value="Platform" style="swimlane;startSize=30;fillColor=none;strokeColor=#D6AE72;dashed=1;dashPattern=6 4;fontSize=11;fontStyle=2;fontColor=#7A4E00;align=left;spacingLeft=10;verticalAlign=top;rounded=1;arcSize=3;html=1;collapsible=0;" vertex="1" parent="us">
+          <mxGeometry x="20" y="60" width="480" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="usKv" value="Key Vaults&#xa;DR secrets (no EU CMK)" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/security/Key_Vaults.svg;" vertex="1" parent="usS">
+          <mxGeometry x="40" y="45" width="58" height="58" as="geometry" />
+        </mxCell>
+        <mxCell id="usLog" value="Log Analytics&#xa;DR telemetry" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/management_governance/Log_Analytics_Workspaces.svg;" vertex="1" parent="usS">
+          <mxGeometry x="250" y="45" width="54" height="54" as="geometry" />
+        </mxCell>
+
+        <mxCell id="usA" value="Warm compute — provisioned, scaled down" style="swimlane;startSize=30;fillColor=none;strokeColor=#D6AE72;dashed=1;dashPattern=6 4;fontSize=11;fontStyle=2;fontColor=#7A4E00;align=left;spacingLeft=10;verticalAlign=top;rounded=1;arcSize=3;html=1;collapsible=0;" vertex="1" parent="us">
+          <mxGeometry x="20" y="300" width="480" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="usEvh" value="Event Hubs&#xa;provisioned, scaled down" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/analytics/Event_Hubs.svg;" vertex="1" parent="usA">
+          <mxGeometry x="40" y="45" width="67" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="usAks" value="AKS — warm standby&#xa;minimum node count" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/containers/Kubernetes_Services.svg;" vertex="1" parent="usA">
+          <mxGeometry x="250" y="45" width="68" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="usB" value="Warm processing — scaled to zero until promotion" style="swimlane;startSize=30;fillColor=none;strokeColor=#D6AE72;dashed=1;dashPattern=6 4;fontSize=11;fontStyle=2;fontColor=#7A4E00;align=left;spacingLeft=10;verticalAlign=top;rounded=1;arcSize=3;html=1;collapsible=0;" vertex="1" parent="us">
+          <mxGeometry x="20" y="540" width="480" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="usDbx" value="Azure Databricks&#xa;scaled to zero" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/analytics/Azure_Databricks.svg;" vertex="1" parent="usB">
+          <mxGeometry x="40" y="45" width="56" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="usAcr" value="Container Registries&#xa;geo-replicated images" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/containers/Container_Registries.svg;" vertex="1" parent="usB">
+          <mxGeometry x="250" y="45" width="68" height="61" as="geometry" />
+        </mxCell>
+
+        <mxCell id="usC" value="Replicated storage — NON-EU-classified tables only" style="swimlane;startSize=30;fillColor=none;strokeColor=#D79B00;dashed=1;dashPattern=6 4;fontSize=11;fontStyle=2;fontColor=#7A4E00;align=left;spacingLeft=10;verticalAlign=top;rounded=1;arcSize=3;html=1;collapsible=0;" vertex="1" parent="us">
+          <mxGeometry x="20" y="780" width="480" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="usAdls" value="ADLS Gen2&#xa;non-EU tables only" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/storage/Data_Lake_Storage_Gen1.svg;" vertex="1" parent="usC">
+          <mxGeometry x="40" y="45" width="80" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="usSync" value="Storage object replication&#xa;asynchronous · RPO ~15 min" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/storage/Storage_Sync_Services.svg;" vertex="1" parent="usC">
+          <mxGeometry x="280" y="45" width="72" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="usD" value="Read-only serving footprint (Austin analysts)" style="swimlane;startSize=30;fillColor=none;strokeColor=#D6AE72;dashed=1;dashPattern=6 4;fontSize=11;fontStyle=2;fontColor=#7A4E00;align=left;spacingLeft=10;verticalAlign=top;rounded=1;arcSize=3;html=1;collapsible=0;" vertex="1" parent="us">
+          <mxGeometry x="20" y="1010" width="480" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="usSyn" value="Synapse Analytics&#xa;read-only serving&#xa;hot / recent subset" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/analytics/Azure_Synapse_Analytics.svg;" vertex="1" parent="usD">
+          <mxGeometry x="40" y="45" width="52" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="usSql" value="Azure SQL Database&#xa;read replica — metadata" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/databases/SQL_Database.svg;" vertex="1" parent="usD">
+          <mxGeometry x="250" y="45" width="45" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== NOTES ===================== -->
+        <mxCell id="note1" value="§2.3 Residency — EU-classified customer data has exactly ONE copy, in West Europe. The DR region holds no copy at all, so residency is provable by absence rather than by a standing negative-proof burden at four unannounced audits a year." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=11;fontColor=#1F4F1F;align=left;spacingLeft=8;verticalAlign=middle;" vertex="1" parent="sub">
+          <mxGeometry x="30" y="1440" width="500" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="note2" value="§4.3 Availability — a zone-redundant SINGLE active region lands at our standard 99.95% Enterprise tier. This design structurally CANNOT reach 99.99%, and any SLA miss of any duration triggers immediate termination plus a full refund of that month's fees." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontSize=11;fontColor=#6B1F1C;align=left;spacingLeft=8;verticalAlign=middle;" vertex="1" parent="sub">
+          <mxGeometry x="560" y="1440" width="500" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="note3" value="DR posture — warm standby, promoted by runbook: manual RTO. Async replication gives RPO ~15 min for non-EU-classified tables only. Optimised for §2.2 scale at the lowest defensible cost (20% TCO) and the fastest §7 timeline — the benchmarked single-region topology." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=11;fontColor=#6B5200;align=left;spacingLeft=8;verticalAlign=middle;" vertex="1" parent="sub">
+          <mxGeometry x="1090" y="1440" width="480" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== CONSUMERS ===================== -->
+        <mxCell id="consBox" value="Acme Corp — business consumers" style="swimlane;startSize=30;fillColor=#F5F5F5;strokeColor=#666666;dashed=1;dashPattern=6 4;fontColor=#444444;fontStyle=1;fontSize=12;verticalAlign=top;align=center;rounded=1;arcSize=3;html=1;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="380" y="1680" width="1560" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="pbiEU" value="" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/power_platform/PowerBI.svg;" vertex="1" parent="consBox">
+          <mxGeometry x="66" y="45" width="45" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="pbiEUt" value="Power BI — EU business users&#xa;majority of the 600 named users · DirectQuery against West Europe serving layer" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;whiteSpace=wrap;fontColor=#333333;" vertex="1" parent="consBox">
+          <mxGeometry x="130" y="50" width="380" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="pbiUS" value="" style="sketch=0;points=[];aspect=fixed;html=1;align=center;fontSize=10;verticalLabelPosition=bottom;verticalAlign=top;labelPosition=center;fontColor=#333333;image=img/lib/azure2/power_platform/PowerBI.svg;" vertex="1" parent="consBox">
+          <mxGeometry x="1108" y="45" width="45" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="pbiUSt" value="Power BI — Austin analysts&#xa;local DirectQuery against the replicated hot / recent subset, no trans-Atlantic round trip per visual" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;whiteSpace=wrap;fontColor=#333333;" vertex="1" parent="consBox">
+          <mxGeometry x="1172" y="50" width="370" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== EDGES ===================== -->
+        <mxCell id="e1" value="streaming" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0F3A5F;strokeWidth=2;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="srcStream" target="expressRoute">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="batch + cutover" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0F3A5F;strokeWidth=2;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="srcTeradata" target="expressRoute">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="80K events/sec" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0F3A5F;strokeWidth=2;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="expressRoute" target="weEvh">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="Teradata + 30&#43; batch sources" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0F3A5F;strokeWidth=2;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="expressRoute" target="weDms">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="300" y="810" />
+              <mxPoint x="878" y="810" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0F3A5F;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="weEvh" target="weAks">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0F3A5F;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="weAks" target="weAsa">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" value="raw landing" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0F3A5F;strokeWidth=2;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.15;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="weAsa" target="weAdls">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="884" y="790" />
+              <mxPoint x="1072" y="790" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" value="curated Delta" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0F3A5F;strokeWidth=2;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.4;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="weDbx" target="weAdls">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="458" y="1020" />
+              <mxPoint x="1092" y="1020" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0F3A5F;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.65;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="weAdf" target="weAdls">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="1035" />
+              <mxPoint x="1112" y="1035" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0F3A5F;strokeWidth=2;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.9;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="weDms" target="weAdls">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="878" y="1050" />
+              <mxPoint x="1132" y="1050" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e11" value="serving layer" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0F3A5F;strokeWidth=2;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.4;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="weAdls" target="weSyn">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1092" y="1270" />
+              <mxPoint x="466" y="1270" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e12" value="catalog scan" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#31577A;strokeWidth=1;dashed=1;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="weAdls" target="wePur">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1120" y="1290" />
+              <mxPoint x="884" y="1290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e13" value="async object replication — NON-EU-classified tables only · RPO ~15 min" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D79B00;strokeWidth=2;dashed=1;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;verticalAlign=bottom;" edge="1" parent="1" source="weAdls" target="usAdls">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" value="read-only hot subset" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D79B00;strokeWidth=2;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="usAdls" target="usSyn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" value="DirectQuery" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0F3A5F;strokeWidth=2;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="weSyn" target="pbiEU">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="0" y="-95" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e16" value="local DirectQuery" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D79B00;strokeWidth=2;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="usSyn" target="pbiUS">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="0" y="-95" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e17" value="all client &amp; BI traffic&#xa;routed to EU primary" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0F3A5F;strokeWidth=2;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.04;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="frontDoor" target="we">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-58" y="42" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e18" value="runbook-driven DR promotion&#xa;(manual RTO)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D79B00;strokeWidth=2;dashed=1;fontSize=10;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.15;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="automation" target="us">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="88" y="42" as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
